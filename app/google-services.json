@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1025115165725",
+    "project_id": "roomiebudget",
+    "storage_bucket": "roomiebudget.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1025115165725:android:9dc74591d198a0769062f4",
+        "android_client_info": {
+          "package_name": "uga.edu.roomiebudget"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1025115165725-7hugg4hgdjdfulkkerugv2n4flvrfi03.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAMbx1MnUY_GewLw6rENj5cM6y4chXoGnQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1025115165725-7hugg4hgdjdfulkkerugv2n4flvrfi03.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
