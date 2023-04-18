@@ -19,6 +19,19 @@
         android:textStyle="bold" />
 
     <EditText
+        android:id="@+id/editTextTextPersonName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:ems="10"
+        android:hint="Email"
+        android:inputType="text"
+        android:paddingLeft="10dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:textSize="18sp" />
+
+    <EditText
         android:id="@+id/editText3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -57,6 +70,20 @@
         android:paddingTop="10dp"
         android:paddingBottom="10dp"
         android:textSize="18sp" />
+
+    <EditText
+        android:id="@+id/editTextTextPassword"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:backgroundTintMode="src_atop"
+        android:ems="10"
+        android:hint="Re-Enter Password"
+        android:inputType="textPassword"
+        android:paddingLeft="10dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:textSize="18sp"/>
 
     <Button
         android:id="@+id/button2"
