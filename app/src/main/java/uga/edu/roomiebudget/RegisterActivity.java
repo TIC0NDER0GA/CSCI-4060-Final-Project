@@ -45,6 +45,7 @@ public class RegisterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_register);
         context = this;
         hdb = new HousingDataBaseManager(this);
+        newEMAIL = findViewById(R.id.editTextTextPersonName);
         signUpButton = findViewById(R.id.button2);
         nameET = findViewById(R.id.editText3);
         newUsernameET = findViewById(R.id.editText4);
@@ -69,31 +70,12 @@ public class RegisterActivity extends AppCompatActivity {
             if (email.isEmpty() && name.isEmpty() && username.isEmpty() && password.isEmpty() && re_enter.isEmpty()) {
                 Toast.makeText(context, "Please fill out all fields.", Toast.LENGTH_SHORT).show();
             } else if (re_enter.equals(password)) {
-               createUser(email, username, name, password);
+               hdb.createUser(email, username, name, password);
            } else {
                Toast.makeText(context, "Passwords do not match.", Toast.LENGTH_SHORT).show();
            }
 
         }
 
-        public void createUser(String email, String username, String name, String password) {
-            fAuth.createUserWithEmailAndPassword(email,password)
-                    .addOnCompleteListener((Executor) this, (OnCompleteListener<AuthResult>) new OnCompleteListener<AuthResult>() {
-                        @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
-                            if (task.isSuccessful()) {
-                                    hdb.addUser(email,username,name,password);
-                                    Log.d(TAG, "USER with email: " + email + "and password: " + password + "created.");
-                                    startActivity(intent);
-                                hdb.addUser(email,username,name,password);
-                                Log.d(TAG, "USER with email: " + email + "and password: " + password + "created.");
-                                startActivity(intent);
-                            } else {
-                                Log.e(TAG, "USER creation fail.");
-                                Toast.makeText(context, task.getException().toString(), Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    });
-        }
     }
 }

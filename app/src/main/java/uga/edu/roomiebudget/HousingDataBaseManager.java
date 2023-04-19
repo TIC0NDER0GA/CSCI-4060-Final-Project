@@ -2,6 +2,8 @@ package uga.edu.roomiebudget;
 
 import static android.content.ContentValues.TAG;
 
+import static androidx.core.content.ContextCompat.startActivity;
+
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
@@ -80,7 +82,8 @@ public class HousingDataBaseManager {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if (task.isSuccessful()) {
-
+                        intent = new Intent(context, MainActivity.class);
+                        context.startActivity(intent);
                     } else {
 
                     }
@@ -110,6 +113,24 @@ public class HousingDataBaseManager {
     public void createGroup(String user, String password, String group) {
         uref = fdb.getReference(DATABASE_USERS);
 
+    }
+
+    public void createUser(String email, String username, String name, String password) {
+        fAuth.createUserWithEmailAndPassword(email,password)
+                .addOnCompleteListener( new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            addUser(email,username,name,password);
+                            Log.d(TAG, "USER with email: " + email + "and password: " + password + "created.");
+                            intent = new Intent(context, MainActivity.class);
+                            context.startActivity(intent);
+                        } else {
+                            Log.e(TAG, "USER creation fail.");
+                            Toast.makeText(context, task.getException().toString(), Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
     }
 
 
