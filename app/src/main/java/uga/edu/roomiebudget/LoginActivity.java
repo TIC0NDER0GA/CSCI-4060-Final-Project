@@ -51,7 +51,7 @@ public class LoginActivity extends AppCompatActivity {
             String password = passwordET.getText().toString();
             hdb.signinUser(username,password);
         }
-
-
     }
+
+
 }
