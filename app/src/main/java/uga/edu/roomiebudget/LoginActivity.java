@@ -1,5 +1,6 @@
 package uga.edu.roomiebudget;
 
+import static android.app.PendingIntent.getActivity;
 import static android.content.ContentValues.TAG;
 
 import androidx.annotation.NonNull;
@@ -26,8 +27,6 @@ public class LoginActivity extends AppCompatActivity {
     private Button continueButton;
     private EditText usernameET;
     private EditText passwordET;
-    private FirebaseAuth fAuth = FirebaseAuth.getInstance();
-    private Context context;
 
     HousingDataBaseManager hdb;
 
@@ -35,7 +34,6 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        context = this;
         continueButton = findViewById(R.id.button);
         usernameET = findViewById(R.id.userLogin);
         passwordET = findViewById(R.id.passwordLogin);

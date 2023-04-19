@@ -2,8 +2,6 @@ package uga.edu.roomiebudget;
 
 import static android.content.ContentValues.TAG;
 
-import static androidx.core.content.ContextCompat.startActivity;
-
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
@@ -12,23 +10,21 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseException;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executor;
-
 public class HousingDataBaseManager {
     private FirebaseDatabase fdb = FirebaseDatabase.getInstance("https://roomiebudget-default-rtdb.firebaseio.com");
-    private DatabaseReference fref;
-    private DatabaseReference uref;
+    private DatabaseReference fRef;
+    private DatabaseReference uRef;
 
     private String email;
     private boolean exists = false;
@@ -49,31 +45,31 @@ public class HousingDataBaseManager {
     }
 
     public void makeGroup(String group) {
-        fref = fdb.getReference(DATABASE_ENTRY);
-        fref.child(group).setValue("");
-        fref = fdb.getReference(DATABASE_ENTRY + "/" + group);
-        fref.child("Item_list").setValue("");
-        fref.child("Recently_purchased").setValue("");
+        fRef = fdb.getReference(DATABASE_ENTRY);
+        fRef.child(group).setValue("");
+        fRef = fdb.getReference(DATABASE_ENTRY + "/" + group);
+        fRef.child("Item_list").setValue("");
+        fRef.child("Recently_purchased").setValue("");
 
     }
 
     public void addUser(String email, String user, String fullName, String password) {
-        uref = fdb.getReference(DATABASE_USERS);
-        uref.child(user).setValue("");
-        uref = fdb.getReference(DATABASE_USERS + "/" + user);
-        uref.child("email").setValue(email);
-        uref.child("full_name").setValue(fullName);
-        uref.child("password").setValue(password);
+        uRef = fdb.getReference(DATABASE_USERS);
+        uRef.child(user).setValue("");
+        uRef = fdb.getReference(DATABASE_USERS + "/" + user);
+        uRef.child("email").setValue(email);
+        uRef.child("full_name").setValue(fullName);
+        uRef.child("password").setValue(password);
     }
 
     public void addMember(String group, String username) {
-        fref = fdb.getReference(DATABASE_ENTRY + "/" + group);
-        fref.child(username).setValue("");
+        fRef = fdb.getReference(DATABASE_ENTRY + "/" + group);
+        fRef.child(username).setValue("");
     }
 
     public void addGroupToUser(String user, String group) {
-        uref = fdb.getReference(DATABASE_USERS + "/" + user);
-        uref.child("dorm").setValue(group);
+        uRef = fdb.getReference(DATABASE_USERS + "/" + user);
+        uRef.child("dorm").setValue(group);
     }
 
 
@@ -95,8 +91,8 @@ public class HousingDataBaseManager {
 
 
     public void addUserToGroup(String user, String password, String group) {
-        uref = fdb.getReference(DATABASE_USERS + "/" + group);
-            uref.child(group).addListenerForSingleValueEvent(new ValueEventListener() {
+        uRef = fdb.getReference(DATABASE_USERS + "/" + group);
+            uRef.child(group).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
 
@@ -110,8 +106,26 @@ public class HousingDataBaseManager {
     }
 
 
-    public void createGroup(String user, String password, String group) {
-        uref = fdb.getReference(DATABASE_USERS);
+    public void createGroup(String email, String password, String group) {
+        uRef = fdb.getReference(DATABASE_ENTRY);
+        fAuth.signInWithEmailAndPassword(email,password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                if (task.isSuccessful()) {
+                    uRef.child(group).setValue("").addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isCanceled()) {
+                            } else {
+                                Toast.makeText(context, "Group already exists", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+                } else {
+                    Toast.makeText(context, "Invalid Login", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
 
     }
 
