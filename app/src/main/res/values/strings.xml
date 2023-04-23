@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">RoomieBudget</string>
+
+    <string name="shoppingList">Shopping List</string>
+    <string name="purchaseList">Purchased List</string>
+    <string name="logout">Logout</string>
+    <string name="regWGroup">Sign Up With Existing Group</string>
+    <string name="regAndCreate">Sign Up And Create New Group</string>
 </resources>

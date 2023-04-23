@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/shopListItem"
+        android:title="@string/shoppingList" />
+    <item
+        android:id="@+id/purchListItem"
+        android:title="@string/purchaseList" />
+    <item
+        android:id="@+id/logoutItem"
+        android:title="@string/logout" />
+</menu>

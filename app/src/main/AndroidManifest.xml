@@ -12,6 +12,9 @@
         android:theme="@style/Theme.RoomieBudget"
         tools:targetApi="31">
         <activity
+            android:name=".PurchasedListActivity"
+            android:exported="false" />
+        <activity
             android:name=".ShoppingListActivity"
             android:exported="false" />
         <activity
