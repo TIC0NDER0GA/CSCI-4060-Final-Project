@@ -45,12 +45,12 @@
         android:textSize="18sp" />
 
     <EditText
-        android:id="@+id/editText4"
+        android:id="@+id/groupName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
         android:ems="10"
-        android:hint="Username"
+        android:hint="Group Name"
         android:inputType="text"
         android:paddingLeft="10dp"
         android:paddingTop="10dp"

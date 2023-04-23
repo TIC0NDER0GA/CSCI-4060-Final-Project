@@ -13,12 +13,15 @@ public class MainActivity extends AppCompatActivity {
 
     private Button signupB;
 
+    private Button signUpB2;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         loginB = findViewById(R.id.loginButton);
         signupB = findViewById(R.id.signupButton);
+        signUpB2 = findViewById(R.id.signupButton2);
         loginB.setOnClickListener(new ButtonClickListener());
         signupB.setOnClickListener(new ButtonClickListener());
     }
@@ -33,6 +36,9 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case R.id.signupButton:
                     intent = new Intent(view.getContext(), RegisterActivity.class);
+                    break;
+                case R.id.signupButton2:
+                    intent = new Intent(view.getContext(), CreateGroupActivity.class);
                     break;
             }
 
