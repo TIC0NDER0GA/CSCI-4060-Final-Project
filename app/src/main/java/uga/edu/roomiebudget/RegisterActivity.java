@@ -59,10 +59,9 @@ public class RegisterActivity extends AppCompatActivity {
             } else if (re_enter.equals(password)) {
                 switch (view.getId()) {
                     case R.id.button2:
-                        hdb.createUser(email, groupName, name, password);
+                        hdb.createUserWithoutGroup(email, groupName, name, password);
                     case R.id.button4:
-                        hdb.createUser(email, groupName, name, password);
-                }
+                        hdb.createUserWithGroup(email, groupName, name, password);                }
             } else {
                 Toast.makeText(context, "Passwords do not match.", Toast.LENGTH_SHORT).show();
             }

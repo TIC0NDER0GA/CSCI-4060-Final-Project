@@ -9,20 +9,15 @@ import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseException;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-
-import java.util.EventListener;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,6 +41,8 @@ public class HousingDataBaseManager {
     private SharedPreferences.Editor editor;
     private Map<String,String> item_list = new HashMap<>();
     private Map<String,Double> purchased_list = new HashMap<>();
+
+    private Map<String, Map<String, Double>> lists_by_user = new HashMap<>();
 
     public  HousingDataBaseManager(Context parent) {
         context = parent;
@@ -104,32 +101,29 @@ public class HousingDataBaseManager {
 
 
 
-    public void addUserToGroup(String email, String password, String group) {
+    public void addUserToGroup(String email, String group) throws Exception {
         fRef = fdb.getReference(DATABASE_ENTRY + "/" + group);
-        uRef = fdb.getReference(DATABASE_USERS + "/");
-        fAuth.signInWithEmailAndPassword(email,password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+
+        fRef.child(parseEmail(email)).setValue("").addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
-            public void onComplete(@NonNull Task<AuthResult> task) {
+            public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
-                    fRef.child(parseEmail(email)).setValue("").addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful()) {
 
-                            } else {
-                                Toast.makeText(context, "User Already in group", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    });
                 } else {
-
+                    try {
+                        throw new GroupException("Group Already Exists");
+                    } catch (GroupException e) {
+                        Toast.makeText(context, "User Already in group", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         });
     }
 
 
-    public void createGroup(String email, String password, String group) {
+
+
+    public void createGroup(String email, String group) throws Exception{
         fRef = fdb.getReference(DATABASE_ENTRY);
                     fRef.child(group).setValue("").addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
@@ -143,7 +137,11 @@ public class HousingDataBaseManager {
                                 fRef.child("Recently_purchased").setValue("");
                                 Log.d(TAG, "Added Recently_purchased to group");
                             } else {
-                                Toast.makeText(context, "Group already exists", Toast.LENGTH_SHORT).show();
+                                try {
+                                    throw new GroupException("Group Already Exists");
+                                } catch (GroupException e) {
+                                    Toast.makeText(context, "Group already exists", Toast.LENGTH_SHORT).show();
+                                }
                             }
                         }
                     });
@@ -213,31 +211,60 @@ public class HousingDataBaseManager {
 
 
 
-    public void createUser(String email, String username, String name, String password) {
-        fAuth.createUserWithEmailAndPassword(email,password)
-                .addOnCompleteListener( new OnCompleteListener<AuthResult>() {
+    public void createUserWithGroup(String email, String group, String name, String password) {
+            fAuth.createUserWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            if (task.isSuccessful()) {
+                                try {
+                                    createGroup(email, group);
+                                    addUser(email, group, name, password);
+                                    Log.d(TAG, "USER with email: " + email + "and password: " + password + "created.");
+                                    intent = new Intent(context, MainActivity.class);
+                                    context.startActivity(intent);
+                                } catch (Exception e) {
+                                    Toast.makeText(context, e.toString(), Toast.LENGTH_SHORT);
+                                }
+                            } else {
+                                Log.e(TAG, "USER creation fail.");
+                                Toast.makeText(context, task.getException().toString(), Toast.LENGTH_SHORT).show();
+                            }
+                        }
+
+                    });
+    }
+
+
+
+    public void createUserWithoutGroup(String email, String group, String name, String password) {
+        fAuth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            addUser(email,username,name,password);
-                            Log.d(TAG, "USER with email: " + email + "and password: " + password + "created.");
-
-
-                            intent = new Intent(context, MainActivity.class);
-                            context.startActivity(intent);
-
+                            try {
+                                addUserToGroup(email, group);
+                                addUser(email, group, name, password);
+                                Log.d(TAG, "USER with email: " + email + "and password: " + password + "created.");
+                                intent = new Intent(context, MainActivity.class);
+                                context.startActivity(intent);
+                            } catch (Exception e) {
+                                throw new RuntimeException(e);
+                            }
                         } else {
                             Log.e(TAG, "USER creation fail.");
                             Toast.makeText(context, task.getException().toString(), Toast.LENGTH_SHORT).show();
                         }
                     }
+
                 });
     }
 
-
-
-
-
-
+    public class GroupException extends Exception {
+        public GroupException(String msg) {
+            super(msg);
+        }
+    }
 
 }
