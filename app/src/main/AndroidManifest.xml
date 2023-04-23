@@ -18,9 +18,6 @@
             android:name=".JoinGroupActivity"
             android:exported="false" />
         <activity
-            android:name=".CreateGroupActivity"
-            android:exported="false" />
-        <activity
             android:name=".RegisterActivity"
             android:exported="false"
             android:parentActivityName=".MainActivity" />

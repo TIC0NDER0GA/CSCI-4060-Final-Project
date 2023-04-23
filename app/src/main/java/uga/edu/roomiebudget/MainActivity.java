@@ -37,9 +37,6 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.signupButton:
                     intent = new Intent(view.getContext(), RegisterActivity.class);
                     break;
-                case R.id.signupButton2:
-                    intent = new Intent(view.getContext(), CreateGroupActivity.class);
-                    break;
             }
 
             startActivity(intent);

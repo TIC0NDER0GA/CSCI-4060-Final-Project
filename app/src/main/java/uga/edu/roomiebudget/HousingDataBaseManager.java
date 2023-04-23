@@ -131,11 +131,6 @@ public class HousingDataBaseManager {
 
     public void createGroup(String email, String password, String group) {
         fRef = fdb.getReference(DATABASE_ENTRY);
-
-        fAuth.signInWithEmailAndPassword(email,password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-            @Override
-            public void onComplete(@NonNull Task<AuthResult> task) {
-                if (task.isSuccessful()) {
                     fRef.child(group).setValue("").addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
@@ -152,12 +147,6 @@ public class HousingDataBaseManager {
                             }
                         }
                     });
-                } else {
-                    Toast.makeText(context, "Invalid Login", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-
     }
 
     public void addItem(String group, String item, String id) {
