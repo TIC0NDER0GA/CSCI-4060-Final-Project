@@ -60,8 +60,11 @@ public class RegisterActivity extends AppCompatActivity {
                 switch (view.getId()) {
                     case R.id.button2:
                         hdb.createUserWithoutGroup(email, groupName, name, password);
+                        break;
                     case R.id.button4:
-                        hdb.createUserWithGroup(email, groupName, name, password);                }
+                        hdb.createUserWithGroup(email, groupName, name, password);
+                        break;
+                }
             } else {
                 Toast.makeText(context, "Passwords do not match.", Toast.LENGTH_SHORT).show();
             }

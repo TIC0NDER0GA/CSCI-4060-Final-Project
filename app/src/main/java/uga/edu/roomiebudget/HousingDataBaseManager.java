@@ -224,7 +224,7 @@ public class HousingDataBaseManager {
                                     intent = new Intent(context, MainActivity.class);
                                     context.startActivity(intent);
                                 } catch (Exception e) {
-                                    Toast.makeText(context, e.toString(), Toast.LENGTH_SHORT);
+                                    Toast.makeText(context, e.toString(), Toast.LENGTH_SHORT).show();
                                 }
                             } else {
                                 Log.e(TAG, "USER creation fail.");
@@ -250,7 +250,7 @@ public class HousingDataBaseManager {
                                 intent = new Intent(context, MainActivity.class);
                                 context.startActivity(intent);
                             } catch (Exception e) {
-                                throw new RuntimeException(e);
+                                Toast.makeText(context, e.toString(), Toast.LENGTH_SHORT).show();
                             }
                         } else {
                             Log.e(TAG, "USER creation fail.");
