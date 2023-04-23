@@ -16,7 +16,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     private Button signUpButton;
     private EditText nameET;
-    private EditText newUsernameET;
+    private EditText newGroupNameET;
     private EditText newPasswordET;
 
     private EditText newRE_ENTER;
@@ -36,7 +36,7 @@ public class RegisterActivity extends AppCompatActivity {
         newEMAIL = findViewById(R.id.editTextTextPersonName);
         signUpButton = findViewById(R.id.button2);
         nameET = findViewById(R.id.editText3);
-        newUsernameET = findViewById(R.id.groupName);
+        newGroupNameET = findViewById(R.id.groupName);
         newPasswordET = findViewById(R.id.editText5);
         newRE_ENTER = findViewById(R.id.editTextTextPassword);
         signUpButton.setOnClickListener(new ButtonClickListener());
@@ -48,20 +48,24 @@ public class RegisterActivity extends AppCompatActivity {
         @Override
         public void onClick(View view) {
             intent = new Intent(view.getContext(), LoginActivity.class);
-
             String email = newEMAIL == null ? "" : newEMAIL.getText().toString();
             String name = nameET == null ? "" : nameET.getText().toString();
-            String username = newUsernameET == null ? "" : newUsernameET.getText().toString();
+            String groupName = newGroupNameET == null ? "" : newGroupNameET.getText().toString();
             String password = newPasswordET == null ? "" : newPasswordET.getText().toString();
             String re_enter = newRE_ENTER == null ? "" : newRE_ENTER.getText().toString();
 
-            if (email.isEmpty() && name.isEmpty() && username.isEmpty() && password.isEmpty() && re_enter.isEmpty()) {
+            if (email.isEmpty() && name.isEmpty() && groupName.isEmpty() && password.isEmpty() && re_enter.isEmpty()) {
                 Toast.makeText(context, "Please fill out all fields.", Toast.LENGTH_SHORT).show();
             } else if (re_enter.equals(password)) {
-               hdb.createUser(email, username, name, password);
-           } else {
-               Toast.makeText(context, "Passwords do not match.", Toast.LENGTH_SHORT).show();
-           }
+                switch (view.getId()) {
+                    case R.id.button2:
+                        hdb.createUser(email, groupName, name, password);
+                    case R.id.button4:
+                        hdb.createUser(email, groupName, name, password);
+                }
+            } else {
+                Toast.makeText(context, "Passwords do not match.", Toast.LENGTH_SHORT).show();
+            }
 
         }
 

@@ -92,7 +92,7 @@ public class HousingDataBaseManager {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if (task.isSuccessful()) {
-                        intent = new Intent(context, MainActivity.class);
+                        intent = new Intent(context, ShoppingListActivity.class);
                         context.startActivity(intent);
                     } else {
                         Toast.makeText(context, "Invalid Login", Toast.LENGTH_SHORT);

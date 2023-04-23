@@ -32,12 +32,4 @@
         android:textAllCaps="false"
         android:textSize="16sp" />
 
-    <Button
-        android:id="@+id/signupButton2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Sign Up And Create Group"
-        android:textAllCaps="false"
-        android:textSize="16sp" />
-
 </LinearLayout>
