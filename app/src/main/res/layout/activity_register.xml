@@ -83,12 +83,13 @@
         android:paddingLeft="10dp"
         android:paddingTop="10dp"
         android:paddingBottom="10dp"
-        android:textSize="18sp"/>
+        android:textSize="18sp" />
 
     <Button
         android:id="@+id/button2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:clickable="true"
         android:text="@string/regWGroup"
         android:textAllCaps="false"
         android:textSize="16sp" />
@@ -97,7 +98,8 @@
         android:id="@+id/button4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:clickable="true"
         android:text="@string/regAndCreate"
-        android:textAllCaps="false"
-        android:textSize="16sp" />
+        android:textAllCaps="false" />
+
 </LinearLayout>

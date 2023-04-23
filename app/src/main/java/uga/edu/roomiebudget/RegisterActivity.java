@@ -15,15 +15,13 @@ import com.google.firebase.auth.FirebaseAuth;
 public class RegisterActivity extends AppCompatActivity {
 
     private Button signUpButton;
+    private Button signUpButton2;
     private EditText nameET;
     private EditText newGroupNameET;
     private EditText newPasswordET;
-
     private EditText newRE_ENTER;
     private EditText newEMAIL;
-
     private Context context;
-
     private FirebaseAuth fAuth = FirebaseAuth.getInstance();
     private HousingDataBaseManager hdb;
 
@@ -35,11 +33,13 @@ public class RegisterActivity extends AppCompatActivity {
         hdb = new HousingDataBaseManager(this);
         newEMAIL = findViewById(R.id.editTextTextPersonName);
         signUpButton = findViewById(R.id.button2);
+        signUpButton2 = findViewById(R.id.button4);
         nameET = findViewById(R.id.editText3);
         newGroupNameET = findViewById(R.id.groupName);
         newPasswordET = findViewById(R.id.editText5);
         newRE_ENTER = findViewById(R.id.editTextTextPassword);
         signUpButton.setOnClickListener(new ButtonClickListener());
+        signUpButton2.setOnClickListener(new ButtonClickListener());
     }
 
     private class ButtonClickListener implements View.OnClickListener {
