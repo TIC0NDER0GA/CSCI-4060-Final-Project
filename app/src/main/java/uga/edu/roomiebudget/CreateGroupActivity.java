@@ -22,7 +22,6 @@ public class CreateGroupActivity extends AppCompatActivity {
 
     private HousingDataBaseManager hdb;
     private Context context;
-
     private FirebaseAuth fAuth = FirebaseAuth.getInstance();
 
 

@@ -38,6 +38,11 @@ public class LoginActivity extends AppCompatActivity {
         usernameET = findViewById(R.id.userLogin);
         passwordET = findViewById(R.id.passwordLogin);
         hdb = new HousingDataBaseManager(this);
+        // hdb.createUser("Tougherword@gmail.com", "Tyche", "Daniel Yeboah", "password");
+        // hdb.createGroup("Tougherword@gmail.com", "password","abyss");
+        // hdb.addItem("abyss", "ice", "Tougherword@gmail.com");
+        // hdb.purchasedItem("abyss", "Tougherword", "bananas", 3.50);
+        // hdb.getPurchased("abyss");
         continueButton.setOnClickListener(new ButtonClickListener());
 
     }

@@ -4,6 +4,7 @@ import static android.content.ContentValues.TAG;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -21,13 +22,14 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.EventListener;
+import java.util.HashMap;
+import java.util.Map;
+
 public class HousingDataBaseManager {
     private FirebaseDatabase fdb = FirebaseDatabase.getInstance("https://roomiebudget-default-rtdb.firebaseio.com");
     private DatabaseReference fRef;
     private DatabaseReference uRef;
-
-    private String email;
-    private boolean exists = false;
 
     private final static String DATABASE_ENTRY = "/dorms";
     private final static String DATABASE_USERS = "/users";
@@ -38,10 +40,18 @@ public class HousingDataBaseManager {
 
     private Intent intent;
 
+    private final String USER_PREF = "preferences";
+
+    private SharedPreferences preferences;
+    private SharedPreferences.Editor editor;
+    private Map<String,String> item_list = new HashMap<>();
+    private Map<String,Double> purchased_list = new HashMap<>();
 
     public  HousingDataBaseManager(Context parent) {
         context = parent;
         fAuth = FirebaseAuth.getInstance();
+        preferences = context.getSharedPreferences(USER_PREF, Context.MODE_PRIVATE);
+        editor = preferences.edit();
     }
 
     public void makeGroup(String group) {
@@ -55,9 +65,8 @@ public class HousingDataBaseManager {
 
     public void addUser(String email, String user, String fullName, String password) {
         uRef = fdb.getReference(DATABASE_USERS);
-        uRef.child(user).setValue("");
-        uRef = fdb.getReference(DATABASE_USERS + "/" + user);
-        uRef.child("email").setValue(email);
+        uRef = fdb.getReference(DATABASE_USERS + "/" + parseEmail(email));
+        uRef.child("username").setValue(user);
         uRef.child("full_name").setValue(fullName);
         uRef.child("password").setValue(password);
     }
@@ -65,6 +74,11 @@ public class HousingDataBaseManager {
     public void addMember(String group, String username) {
         fRef = fdb.getReference(DATABASE_ENTRY + "/" + group);
         fRef.child(username).setValue("");
+    }
+
+    public String parseEmail(String email) {
+        email = email.substring(0, email.indexOf('@'));
+        return email;
     }
 
     public void addGroupToUser(String user, String group) {
@@ -81,7 +95,7 @@ public class HousingDataBaseManager {
                         intent = new Intent(context, MainActivity.class);
                         context.startActivity(intent);
                     } else {
-
+                        Toast.makeText(context, "Invalid Login", Toast.LENGTH_SHORT);
                     }
 
                 }
@@ -90,32 +104,49 @@ public class HousingDataBaseManager {
 
 
 
-    public void addUserToGroup(String user, String password, String group) {
-        uRef = fdb.getReference(DATABASE_USERS + "/" + group);
-            uRef.child(group).addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-
-                }
-            });
-    }
-
-
-    public void createGroup(String email, String password, String group) {
-        uRef = fdb.getReference(DATABASE_ENTRY);
+    public void addUserToGroup(String email, String password, String group) {
+        fRef = fdb.getReference(DATABASE_ENTRY + "/" + group);
+        uRef = fdb.getReference(DATABASE_USERS + "/");
         fAuth.signInWithEmailAndPassword(email,password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
-                    uRef.child(group).setValue("").addOnCompleteListener(new OnCompleteListener<Void>() {
+                    fRef.child(parseEmail(email)).setValue("").addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isCanceled()) {
+                            if (task.isSuccessful()) {
+
+                            } else {
+                                Toast.makeText(context, "User Already in group", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+                } else {
+
+                }
+            }
+        });
+    }
+
+
+    public void createGroup(String email, String password, String group) {
+        fRef = fdb.getReference(DATABASE_ENTRY);
+
+        fAuth.signInWithEmailAndPassword(email,password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                if (task.isSuccessful()) {
+                    fRef.child(group).setValue("").addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()) {
+                                fRef = fdb.getReference(DATABASE_ENTRY + "/" + group);
+                                fRef.child(parseEmail(email)).setValue("");
+                                Log.d(TAG, "Added email to group");
+                                fRef.child("Item_list").setValue("");
+                                Log.d(TAG, "Added Item_list to group");
+                                fRef.child("Recently_purchased").setValue("");
+                                Log.d(TAG, "Added Recently_purchased to group");
                             } else {
                                 Toast.makeText(context, "Group already exists", Toast.LENGTH_SHORT).show();
                             }
@@ -129,6 +160,70 @@ public class HousingDataBaseManager {
 
     }
 
+    public void addItem(String group, String item, String id) {
+        fRef = fdb.getReference(DATABASE_ENTRY + "/" + group + "/" + "Item_list");
+        fRef.child(item).setValue(parseEmail(id));
+    }
+
+    public void purchasedItem(String group, String member, String item, Double price) {
+        fRef = fdb.getReference(DATABASE_ENTRY + "/" + group + "/" + member);
+        fRef.child(item).setValue(price);
+        fRef = fdb.getReference(DATABASE_ENTRY + "/" + group + "/" + "Recently_purchased");
+        fRef.child(item).setValue(price);
+    }
+
+
+    public Map<String,String> getItems(String group) {
+        fRef = fdb.getReference(DATABASE_ENTRY + "/" + group + "/" + "Item_list");
+
+        fRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    HashMap<String, String> value = (HashMap<String,String>) snapshot.getValue();
+                    for (Map.Entry<String, String> b: value.entrySet()) {
+                        Log.d(TAG, b.getKey());
+                        Log.d(TAG, b.getValue());
+                    }
+                    item_list = value;
+
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+        return item_list;
+    }
+
+
+    public Map<String ,Double> getPurchased(String group) {
+        fRef = fdb.getReference(DATABASE_ENTRY + "/" + group + "/" + "Recently_purchased");
+
+        fRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                HashMap<String, Double> value = (HashMap<String,Double>) snapshot.getValue();
+                for (Map.Entry<String, Double> b: value.entrySet()) {
+                    Log.d(TAG, b.getKey());
+                    Log.d(TAG, String.valueOf(b.getValue()));
+                }
+                purchased_list = value;
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+        return purchased_list;
+    }
+
+
+
     public void createUser(String email, String username, String name, String password) {
         fAuth.createUserWithEmailAndPassword(email,password)
                 .addOnCompleteListener( new OnCompleteListener<AuthResult>() {
@@ -137,8 +232,11 @@ public class HousingDataBaseManager {
                         if (task.isSuccessful()) {
                             addUser(email,username,name,password);
                             Log.d(TAG, "USER with email: " + email + "and password: " + password + "created.");
+
+
                             intent = new Intent(context, MainActivity.class);
                             context.startActivity(intent);
+
                         } else {
                             Log.e(TAG, "USER creation fail.");
                             Toast.makeText(context, task.getException().toString(), Toast.LENGTH_SHORT).show();
@@ -146,6 +244,11 @@ public class HousingDataBaseManager {
                     }
                 });
     }
+
+
+
+
+
 
 
 }
