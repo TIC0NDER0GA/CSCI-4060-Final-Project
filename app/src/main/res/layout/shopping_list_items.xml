@@ -12,7 +12,7 @@
         android:layout_marginRight="20dp">
 
         <TextView
-            android:id="@+id/textView5"
+            android:id="@+id/fb_item"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"

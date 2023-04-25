@@ -9,6 +9,9 @@ import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.security.crypto.EncryptedSharedPreferences;
+import androidx.security.crypto.MasterKey;
+
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -18,7 +21,12 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.util.AbstractMap;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class HousingDataBaseManager {
@@ -39,10 +47,14 @@ public class HousingDataBaseManager {
 
     private SharedPreferences preferences;
     private SharedPreferences.Editor editor;
-    private Map<String,String> item_list = new HashMap<>();
-    private Map<String,Double> purchased_list = new HashMap<>();
+    private LinkedHashMap<String,String> item_list;
+    private LinkedHashMap<String,Double> purchased_list;
+    private MasterKey masterKey;
+    private SharedPreferences privSharedPreferences;
+    private SharedPreferences pubSharedPreferences;
 
-    private Map<String, Map<String, Double>> lists_by_user = new HashMap<>();
+
+    private LinkedHashMap<String, LinkedHashMap<String, Double>> lists_by_user;
 
     public  HousingDataBaseManager(Context parent) {
         context = parent;
@@ -125,7 +137,7 @@ public class HousingDataBaseManager {
 
     public void createGroup(String email, String group) throws Exception{
         fRef = fdb.getReference(DATABASE_ENTRY);
-                    fRef.child(group).setValue("").addOnCompleteListener(new OnCompleteListener<Void>() {
+        fRef.child(group).setValue("").addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()) {
@@ -160,13 +172,13 @@ public class HousingDataBaseManager {
     }
 
 
-    public Map<String,String> getItems(String group) {
+    public LinkedHashMap<String,String> getItems(String group) {
         fRef = fdb.getReference(DATABASE_ENTRY + "/" + group + "/" + "Item_list");
 
         fRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    HashMap<String, String> value = (HashMap<String,String>) snapshot.getValue();
+                LinkedHashMap<String, String> value = (LinkedHashMap<String,String>) snapshot.getValue();
                     for (Map.Entry<String, String> b: value.entrySet()) {
                         Log.d(TAG, b.getKey());
                         Log.d(TAG, b.getValue());
@@ -186,14 +198,14 @@ public class HousingDataBaseManager {
     }
 
 
-    public Map<String ,Double> getPurchased(String group) {
+    public LinkedHashMap<String ,Double> getPurchased(String group) {
         fRef = fdb.getReference(DATABASE_ENTRY + "/" + group + "/" + "Recently_purchased");
 
         fRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                HashMap<String, Double> value = (HashMap<String,Double>) snapshot.getValue();
-                for (Map.Entry<String, Double> b: value.entrySet()) {
+                LinkedHashMap<String, Double> value = (LinkedHashMap<String,Double>) snapshot.getValue();
+                for (LinkedHashMap.Entry<String, Double> b: value.entrySet()) {
                     Log.d(TAG, b.getKey());
                     Log.d(TAG, String.valueOf(b.getValue()));
                 }
@@ -212,6 +224,7 @@ public class HousingDataBaseManager {
 
 
     public void createUserWithGroup(String email, String group, String name, String password) {
+        //  Log.e(TAG, "GROUP: " + group);
             fAuth.createUserWithEmailAndPassword(email, password)
                     .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                         @Override
@@ -231,7 +244,6 @@ public class HousingDataBaseManager {
                                 Toast.makeText(context, task.getException().toString(), Toast.LENGTH_SHORT).show();
                             }
                         }
-
                     });
     }
 
@@ -259,6 +271,93 @@ public class HousingDataBaseManager {
                     }
 
                 });
+    }
+
+
+    public LinkedHashMap<String,LinkedHashMap<String, Double>> getRoomatesPurchased(String group) {
+        LinkedHashMap<String, LinkedHashMap<String, Double>> data = new LinkedHashMap<>();
+
+        fRef = fdb.getReference(DATABASE_ENTRY + "/" + group);
+        fRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            LinkedHashMap<String, Double> innerdata;
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot userSnapshot : snapshot.getChildren()) {
+                    String userId = userSnapshot.getKey();
+                    if ( userId.equals("Item_list") || userId.equals("Recently_purchased")) {
+                        continue;
+                    }
+                    LinkedHashMap<String, Double> innerData = new LinkedHashMap<>();
+
+                    for (DataSnapshot itemSnapshot : userSnapshot.getChildren()) {
+                        String itemName = itemSnapshot.getKey();
+                        Object value = itemSnapshot.getValue();
+
+                        if (value instanceof Double) {
+                            innerData.put(itemName, (Double) value);
+                        } else if (value instanceof Long) {
+                            String valLong = String.valueOf(value);
+                            Double doubleValue = Double.parseDouble(valLong);
+                            innerData.put(itemName, doubleValue);
+                        }
+                    }
+
+                    data.put(userId, innerData);
+                }
+
+                // Log.e(TAG, data.toString());
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+        return lists_by_user;
+    }
+
+
+    private void encryptLogin(String email, String password) throws GeneralSecurityException, IOException {
+        masterKey = new MasterKey.Builder(context).setKeyScheme(MasterKey.KeyScheme.AES256_GCM).build();
+        privSharedPreferences = EncryptedSharedPreferences.create(context, "user_cred", masterKey,
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM);
+        privSharedPreferences.edit().putString("email", email);
+        privSharedPreferences.edit().putString("password",password);
+    }
+
+    private void savePref(String group, String name, String email) {
+        pubSharedPreferences = context.getSharedPreferences("user_pref",Context.MODE_PRIVATE);
+        editor = pubSharedPreferences.edit();
+        editor.putString("group", group);
+        editor.putString("name", name);
+        editor.putString("email", parseEmail(email));
+        editor.apply();
+    }
+
+    public String[] getCred() throws GeneralSecurityException, IOException {
+        String[] userdata = new String[2];
+        masterKey = new MasterKey.Builder(context).setKeyScheme(MasterKey.KeyScheme.AES256_GCM).build();
+        privSharedPreferences = EncryptedSharedPreferences.create(
+                context,
+                "user_cred",
+                masterKey,
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        );
+        userdata[0] = privSharedPreferences.getString("email", null);
+        userdata[1] = privSharedPreferences.getString("password", null);
+        return userdata;
+    }
+
+    public String[] getUser() {
+        String[] userdata = new String[3];
+        pubSharedPreferences = context.getSharedPreferences("user_pref",Context.MODE_PRIVATE);
+        userdata[0] = pubSharedPreferences.getString("group", null);
+        userdata[1] = pubSharedPreferences.getString("name", null);
+        userdata[2] = pubSharedPreferences.getString("email", null);
+        return userdata;
     }
 
     public class GroupException extends Exception {

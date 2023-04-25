@@ -43,6 +43,7 @@ public class LoginActivity extends AppCompatActivity {
         // hdb.addItem("abyss", "ice", "Tougherword@gmail.com");
         // hdb.purchasedItem("abyss", "Tougherword", "bananas", 3.50);
         // hdb.getPurchased("abyss");
+        hdb.getRoomatesPurchased("abyss");
         continueButton.setOnClickListener(new ButtonClickListener());
 
     }

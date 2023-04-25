@@ -1,19 +1,18 @@
 package uga.edu.roomiebudget;
 
+import static android.content.ContentValues.TAG;
 import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-
 import com.google.firebase.auth.FirebaseAuth;
 
 public class RegisterActivity extends AppCompatActivity {
-
     private Button signUpButton;
     private Button signUpButton2;
     private EditText nameET;
@@ -62,6 +61,7 @@ public class RegisterActivity extends AppCompatActivity {
                         hdb.createUserWithoutGroup(email, groupName, name, password);
                         break;
                     case R.id.button4:
+                        Log.e(TAG, "MAKING USER WITH GROUP");
                         hdb.createUserWithGroup(email, groupName, name, password);
                         break;
                 }
