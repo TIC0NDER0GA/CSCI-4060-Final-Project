@@ -172,7 +172,7 @@ public class HousingDataBaseManager {
     }
 
 
-    public LinkedHashMap<String,String> getItems(String group) {
+    public LinkedHashMap<String,String> getItems(String group, FireBaseDataCallback callback) {
         fRef = fdb.getReference(DATABASE_ENTRY + "/" + group + "/" + "Item_list");
 
         fRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -364,6 +364,11 @@ public class HousingDataBaseManager {
         public GroupException(String msg) {
             super(msg);
         }
+    }
+
+    public interface FireBaseDataCallback {
+        void onDataRecieved(LinkedHashMap<String, LinkedHashMap<String, Double>> data);
+        // void onDataRecieved()
     }
 
 }
