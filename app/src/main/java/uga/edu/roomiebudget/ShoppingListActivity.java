@@ -53,9 +53,13 @@ public class ShoppingListActivity extends AppCompatActivity {
     }
 
     public void onButtonShowPopupWindowClick(View view) {
-        LayoutInflater inflater = (LayoutInflater)
-                getSystemService(LAYOUT_INFLATER_SERVICE);
-        View popupView = inflater.inflate(R.layout.popup_purchase, null);
+        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+        View popupView;
+        if (view == findViewById(R.id.button5)) {
+            popupView = inflater.inflate(R.layout.popup_purchase, null);
+        } else {
+            popupView = inflater.inflate(R.layout.popup_edit_item, null);
+        }
 
         int width = LinearLayout.LayoutParams.WRAP_CONTENT;
         int height = LinearLayout.LayoutParams.WRAP_CONTENT;
