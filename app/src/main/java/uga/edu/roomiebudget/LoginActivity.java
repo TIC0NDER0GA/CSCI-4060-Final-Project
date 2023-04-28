@@ -20,6 +20,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.concurrent.Executor;
 
 public class LoginActivity extends AppCompatActivity {
@@ -27,6 +29,7 @@ public class LoginActivity extends AppCompatActivity {
     private Button continueButton;
     private EditText usernameET;
     private EditText passwordET;
+    private Intent intent;
 
     HousingDataBaseManager hdb;
 
@@ -38,14 +41,21 @@ public class LoginActivity extends AppCompatActivity {
         usernameET = findViewById(R.id.userLogin);
         passwordET = findViewById(R.id.passwordLogin);
         hdb = new HousingDataBaseManager(this);
-        // hdb.createUser("Tougherword@gmail.com", "Tyche", "Daniel Yeboah", "password");
-        // hdb.createGroup("Tougherword@gmail.com", "password","abyss");
-        // hdb.addItem("abyss", "ice", "Tougherword@gmail.com");
-        // hdb.purchasedItem("abyss", "Tougherword", "bananas", 3.50);
-        // hdb.getPurchased("abyss");
-        hdb.getRoomatesPurchased("abyss");
-        continueButton.setOnClickListener(new ButtonClickListener());
 
+
+        try {
+            if (hdb.getCred()[0] != null && hdb.getCred()[1] != null) {
+                intent = new Intent(this, PurchasedListActivity.class);
+                this.startActivity(intent);
+            }
+
+        } catch (GeneralSecurityException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        continueButton.setOnClickListener(new ButtonClickListener());
     }
 
     private class ButtonClickListener implements View.OnClickListener {

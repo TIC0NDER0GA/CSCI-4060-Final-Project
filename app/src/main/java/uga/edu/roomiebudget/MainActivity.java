@@ -20,6 +20,8 @@ public class MainActivity extends AppCompatActivity {
         signupB = findViewById(R.id.signupButton);
         loginB.setOnClickListener(new ButtonClickListener());
         signupB.setOnClickListener(new ButtonClickListener());
+
+
     }
 
     private class ButtonClickListener implements View.OnClickListener {

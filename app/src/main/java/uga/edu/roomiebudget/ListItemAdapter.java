@@ -1,5 +1,8 @@
 package uga.edu.roomiebudget;
 
+import static android.content.ContentValues.TAG;
+
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +21,7 @@ public class ListItemAdapter extends RecyclerView.Adapter<ListItemAdapter.ItemHo
 
     public ListItemAdapter(LinkedHashMap<String, String> item_list) {
         this.item_list = new ArrayList<>(item_list.entrySet());
+        Log.e(TAG, this.item_list.toString());
     }
 
 
@@ -25,8 +29,8 @@ public class ListItemAdapter extends RecyclerView.Adapter<ListItemAdapter.ItemHo
     @NonNull
     @Override
     public ItemHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View resultView = LayoutInflater.from(parent.getContext()).inflate(R.layout.shopping_list_items, parent, false);
-        return new ItemHolder(resultView);
+        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.shopping_list_items, parent, false);
+        return new ItemHolder(itemView);
     }
 
     @Override
@@ -37,6 +41,7 @@ public class ListItemAdapter extends RecyclerView.Adapter<ListItemAdapter.ItemHo
 
     @Override
     public int getItemCount() {
+        Log.e(TAG, String.valueOf(item_list.size()));
         return item_list.size();
     }
 

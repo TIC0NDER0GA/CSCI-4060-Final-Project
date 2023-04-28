@@ -16,13 +16,11 @@
             android:exported="false" />
         <activity
             android:name=".PurchasedListActivity"
-            android:exported="false" />
+            android:exported="false"/>
         <activity
             android:name=".ShoppingListActivity"
-            android:exported="false" />
-        <activity
-            android:name=".JoinGroupActivity"
-            android:exported="false" />
+            android:exported="false">
+        </activity>
         <activity
             android:name=".RegisterActivity"
             android:exported="false"
@@ -36,7 +34,6 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

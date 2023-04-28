@@ -44,6 +44,7 @@ public class HousingDataBaseManager {
     private Intent intent;
 
     private final String USER_PREF = "preferences";
+    private String[] auto;
 
     private SharedPreferences preferences;
     private SharedPreferences.Editor editor;
@@ -72,12 +73,12 @@ public class HousingDataBaseManager {
 
     }
 
-    public void addUser(String email, String user, String fullName, String password) {
+    public void addUser(String email, String user, String fullName) {
         uRef = fdb.getReference(DATABASE_USERS);
         uRef = fdb.getReference(DATABASE_USERS + "/" + parseEmail(email));
-        uRef.child("username").setValue(user);
+        uRef.child("group").setValue(user);
         uRef.child("full_name").setValue(fullName);
-        uRef.child("password").setValue(password);
+        uRef.child("email").setValue(email);
     }
 
     public void addMember(String group, String username) {
@@ -101,6 +102,34 @@ public class HousingDataBaseManager {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if (task.isSuccessful()) {
+                        try {
+                            encryptLogin(email, password);
+                            autoLogin(email, new FireBaseDataCallback() {
+                                @Override
+                                public void onRoomatesPurchasedDataReceived(LinkedHashMap<String, LinkedHashMap<String, Double>> data) {
+
+                                }
+
+                                @Override
+                                public void onItemsDataReceived(LinkedHashMap<String, String> data) {
+
+                                }
+
+                                @Override
+                                public void onPurchasedDataRecieved(LinkedHashMap<String, Double> data) {
+
+                                }
+
+                                @Override
+                                public void onLogin(String[] data) {
+                                    // savePref(data[2],data[0],data[1]);
+                                }
+                            });
+                        } catch (GeneralSecurityException e) {
+                            throw new RuntimeException(e);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
                         intent = new Intent(context, ShoppingListActivity.class);
                         context.startActivity(intent);
                     } else {
@@ -172,20 +201,19 @@ public class HousingDataBaseManager {
     }
 
 
-    public LinkedHashMap<String,String> getItems(String group, FireBaseDataCallback callback) {
+    public void getItems(String group, FireBaseDataCallback callback) {
         fRef = fdb.getReference(DATABASE_ENTRY + "/" + group + "/" + "Item_list");
 
         fRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                LinkedHashMap<String, String> value = (LinkedHashMap<String,String>) snapshot.getValue();
-                    for (Map.Entry<String, String> b: value.entrySet()) {
-                        Log.d(TAG, b.getKey());
-                        Log.d(TAG, b.getValue());
-                    }
-                    item_list = value;
-
-
+                item_list = new LinkedHashMap<>();
+                for (DataSnapshot childSnapshot : snapshot.getChildren()) {
+                    String key = childSnapshot.getKey();
+                    String value = (String) childSnapshot.getValue();
+                    item_list.put(key, value);
+                }
+                callback.onItemsDataReceived(item_list);
             }
 
             @Override
@@ -194,22 +222,23 @@ public class HousingDataBaseManager {
             }
         });
 
-        return item_list;
     }
 
 
-    public LinkedHashMap<String ,Double> getPurchased(String group) {
+    public void getPurchased(String group, FireBaseDataCallback callback) {
         fRef = fdb.getReference(DATABASE_ENTRY + "/" + group + "/" + "Recently_purchased");
 
         fRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                LinkedHashMap<String, Double> value = (LinkedHashMap<String,Double>) snapshot.getValue();
-                for (LinkedHashMap.Entry<String, Double> b: value.entrySet()) {
-                    Log.d(TAG, b.getKey());
-                    Log.d(TAG, String.valueOf(b.getValue()));
+                purchased_list = new LinkedHashMap<>();
+                for (DataSnapshot childSnapshot : snapshot.getChildren()) {
+                    String key = childSnapshot.getKey();
+                    String value = (String) String.valueOf(childSnapshot.getValue());
+                    Double price = Double.valueOf(value);
+                    purchased_list.put(key, price);
                 }
-                purchased_list = value;
+                callback.onPurchasedDataRecieved(purchased_list);
             }
 
             @Override
@@ -218,7 +247,6 @@ public class HousingDataBaseManager {
             }
         });
 
-        return purchased_list;
     }
 
 
@@ -232,7 +260,8 @@ public class HousingDataBaseManager {
                             if (task.isSuccessful()) {
                                 try {
                                     createGroup(email, group);
-                                    addUser(email, group, name, password);
+                                    savePref(group, name, email);
+                                    addUser(email, group, name);
                                     Log.d(TAG, "USER with email: " + email + "and password: " + password + "created.");
                                     intent = new Intent(context, MainActivity.class);
                                     context.startActivity(intent);
@@ -257,7 +286,8 @@ public class HousingDataBaseManager {
                         if (task.isSuccessful()) {
                             try {
                                 addUserToGroup(email, group);
-                                addUser(email, group, name, password);
+                                savePref(group, name, email);
+                                addUser(email, group, name);
                                 Log.d(TAG, "USER with email: " + email + "and password: " + password + "created.");
                                 intent = new Intent(context, MainActivity.class);
                                 context.startActivity(intent);
@@ -274,7 +304,7 @@ public class HousingDataBaseManager {
     }
 
 
-    public LinkedHashMap<String,LinkedHashMap<String, Double>> getRoomatesPurchased(String group) {
+    public void getRoomatesPurchased(String group, FireBaseDataCallback callback) {
         LinkedHashMap<String, LinkedHashMap<String, Double>> data = new LinkedHashMap<>();
 
         fRef = fdb.getReference(DATABASE_ENTRY + "/" + group);
@@ -305,7 +335,7 @@ public class HousingDataBaseManager {
                     data.put(userId, innerData);
                 }
 
-                // Log.e(TAG, data.toString());
+                callback.onRoomatesPurchasedDataReceived(data);
             }
 
             @Override
@@ -314,7 +344,6 @@ public class HousingDataBaseManager {
             }
         });
 
-        return lists_by_user;
     }
 
 
@@ -335,6 +364,8 @@ public class HousingDataBaseManager {
         editor.putString("email", parseEmail(email));
         editor.apply();
     }
+
+
 
     public String[] getCred() throws GeneralSecurityException, IOException {
         String[] userdata = new String[2];
@@ -360,6 +391,31 @@ public class HousingDataBaseManager {
         return userdata;
     }
 
+
+    public void autoLogin(String email,FireBaseDataCallback callback) {
+        uRef = fdb.getReference(DATABASE_USERS + parseEmail(email));
+
+        uRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                auto = new String[3];
+                int i = 0;
+                for (DataSnapshot datasnap: snapshot.getChildren()) {
+                    auto[i] = (String) datasnap.getValue();
+                    i++;
+                }
+                callback.onLogin(auto);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+
+
     public class GroupException extends Exception {
         public GroupException(String msg) {
             super(msg);
@@ -367,8 +423,13 @@ public class HousingDataBaseManager {
     }
 
     public interface FireBaseDataCallback {
-        void onDataRecieved(LinkedHashMap<String, LinkedHashMap<String, Double>> data);
-        // void onDataRecieved()
+        void onRoomatesPurchasedDataReceived(LinkedHashMap<String, LinkedHashMap<String, Double>> data);
+        void onItemsDataReceived(LinkedHashMap<String, String> data);
+
+        void onPurchasedDataRecieved(LinkedHashMap<String, Double> data);
+
+        void onLogin(String[] data);
     }
+
 
 }

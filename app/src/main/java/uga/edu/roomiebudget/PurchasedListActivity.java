@@ -1,9 +1,14 @@
 package uga.edu.roomiebudget;
 
+import static android.content.ContentValues.TAG;
+
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -13,12 +18,49 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 
+import java.util.LinkedHashMap;
+
 public class PurchasedListActivity extends AppCompatActivity {
+
+
+    private HousingDataBaseManager hdb;
+    private PurchaseByUserAdapter purchased_list_adapter;
+    private RecyclerView recyclerView;
+    private LinearLayoutManager layoutManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_purchased_list);
+//        addItem.onButtonShowPopupWindowClicked(R.id.popup_purchase);
+        recyclerView = (RecyclerView) findViewById(R.id.purchased_by_user_recycler);
+        layoutManager = new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false);
+        recyclerView.setLayoutManager(layoutManager);
+        hdb = new HousingDataBaseManager(this);
+        hdb.getRoomatesPurchased(hdb.getUser()[0], new HousingDataBaseManager.FireBaseDataCallback() {
+            @Override
+            public void onRoomatesPurchasedDataReceived(LinkedHashMap<String, LinkedHashMap<String, Double>> data) {
+                purchased_list_adapter = new PurchaseByUserAdapter(data);
+                Log.d(TAG, data.toString());
+                recyclerView.setAdapter(purchased_list_adapter);
+                purchased_list_adapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onItemsDataReceived(LinkedHashMap<String, String> data) {
+
+            }
+
+            @Override
+            public void onPurchasedDataRecieved(LinkedHashMap<String, Double> data) {
+
+            }
+
+            @Override
+            public void onLogin(String[] data) {
+
+            }
+        });
     }
 
     @Override
