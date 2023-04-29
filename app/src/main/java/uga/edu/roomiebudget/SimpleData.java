@@ -28,6 +28,16 @@ public class SimpleData {
         return titles.size();
     }
 
+    public void setEntries(ArrayList<LinkedHashMap<String, Double>> entries) {
+        this.entries = entries;
+    }
+
+    public void setTitle(int pos, String element) {
+        titles.set(pos, element);
+    }
+
+
+
     public String toString() {
         return entries.toString() + " " + titles.toString();
     }

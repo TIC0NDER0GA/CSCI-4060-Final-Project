@@ -20,6 +20,7 @@ import java.util.Set;
 public class PurchaseByUserAdapter extends RecyclerView.Adapter<PurchaseByUserAdapter.ListContainer> {
 
     private SimpleData purchased_by_user;
+    private ArrayList<ListContainer> listContainers = new ArrayList<>();
 
 
     public PurchaseByUserAdapter(LinkedHashMap<String, LinkedHashMap<String,Double>> purchased_by_user) {
@@ -32,13 +33,18 @@ public class PurchaseByUserAdapter extends RecyclerView.Adapter<PurchaseByUserAd
     @Override
     public ListContainer onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View container = LayoutInflater.from(parent.getContext()).inflate(R.layout.inner_purchased_by_user, parent,false);
-        return new ListContainer(container);
+        ListContainer list = new ListContainer(container);
+        listContainers.add(list);
+        return list;
     }
 
     @Override
     public void onBindViewHolder(@NonNull ListContainer holder, int position) {
         holder.bind(purchased_by_user.getTitle(position), purchased_by_user.getList(position));
     }
+
+
+
 
     @Override
     public int getItemCount() {
@@ -62,6 +68,7 @@ public class PurchaseByUserAdapter extends RecyclerView.Adapter<PurchaseByUserAd
             adapter = new PurchasedListAdapter(list);
             inner_list.setAdapter(adapter);
         }
+
     }
 
 

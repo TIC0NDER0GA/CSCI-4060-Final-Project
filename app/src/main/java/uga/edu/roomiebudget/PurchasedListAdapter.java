@@ -40,6 +40,12 @@ public class PurchasedListAdapter extends RecyclerView.Adapter<PurchasedListAdap
         return purchased_list.size();
     }
 
+    public void overwriteItem(int position, String key, double value) {
+        Map.Entry<String, Double> entry = purchased_list.get(position);
+        entry.setValue(value);
+        notifyDataSetChanged();
+    }
+
     public class PurchasedItemHolder extends RecyclerView.ViewHolder {
         TextView purchased_name;
         TextView purchased_price;
