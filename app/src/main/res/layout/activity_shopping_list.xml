@@ -33,25 +33,18 @@
             android:id="@+id/editTextTextPersonName2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:ems="10"
+            android:hint="Item Name"
             android:inputType="textPersonName"
-            android:text="Item Name" />
+            android:textSize="20sp" />
 
         <Button
-            android:id="@+id/button5"
+            android:id="@+id/addButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:text="Add Item"
             android:textAllCaps="false" />
 
     </LinearLayout>
 
-    <Button
-        android:id="@+id/button10"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:onClick="onButtonShowPopupWindowClick"
-        android:text="Popup" />
 </LinearLayout>

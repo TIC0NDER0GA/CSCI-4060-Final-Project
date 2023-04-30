@@ -15,6 +15,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 
@@ -27,12 +28,14 @@ public class PurchasedListActivity extends AppCompatActivity {
     private PurchaseByUserAdapter purchased_list_adapter;
     private RecyclerView recyclerView;
     private LinearLayoutManager layoutManager;
+    private Button settleCosts;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_purchased_list);
-//        addItem.onButtonShowPopupWindowClicked(R.id.popup_purchase);
+        settleCosts = findViewById(R.id.settleCostButton);
+        settleCosts.setOnClickListener(new ButtonClickListener());
         recyclerView = (RecyclerView) findViewById(R.id.purchased_by_user_recycler);
         layoutManager = new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false);
         recyclerView.setLayoutManager(layoutManager);
@@ -106,6 +109,15 @@ public class PurchasedListActivity extends AppCompatActivity {
                 return true;
             }
         });
+    }
+
+    private class ButtonClickListener implements View.OnClickListener {
+        @Override
+        public void onClick(View view) {
+            Intent intent = new Intent(view.getContext(), SettleCostsActivity.class);
+
+            startActivity(intent);
+        }
     }
 
 }

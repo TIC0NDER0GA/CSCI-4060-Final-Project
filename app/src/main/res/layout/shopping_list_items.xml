@@ -20,32 +20,32 @@
             android:layout_height="wrap_content"
             android:text="Item Name"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/button12"
+            app:layout_constraintEnd_toStartOf="@+id/purchaseButton"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <Button
-            android:id="@+id/button12"
+            android:id="@+id/purchaseButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginRight="10dp"
-            android:text="Edit"
+            android:onClick="onButtonShowPopupWindowClick"
+            android:text="Purchase"
             android:textAllCaps="false"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/button5"
-            app:layout_constraintTop_toTopOf="parent"
-            android:onClick="onButtonShowPopupWindowClick" />
+            app:layout_constraintEnd_toStartOf="@+id/removeButton"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <Button
-            android:id="@+id/button5"
+            android:id="@+id/removeButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Purchase"
+            android:text="Remove"
             android:textAllCaps="false"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:onClick="onButtonShowPopupWindowClick" />
+            android:onClick="removeItemOnClick"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </LinearLayout>

@@ -7,7 +7,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -20,7 +19,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import java.util.LinkedHashMap;
 
@@ -65,7 +64,7 @@ public class ShoppingListActivity extends AppCompatActivity {
 
 
         setContentView(R.layout.activity_shopping_list);
-        addItem = findViewById(R.id.button5);
+        addItem = findViewById(R.id.addButton);
         recyclerView = (RecyclerView) findViewById(R.id.shopping_list_recycler);
         layoutManager = new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false);
         recyclerView.setLayoutManager(layoutManager);
@@ -156,12 +155,13 @@ public class ShoppingListActivity extends AppCompatActivity {
 
     public void onButtonShowPopupWindowClick(View view) {
         LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-        View popupView;
-        if (view == findViewById(R.id.button5)) {
-            popupView = inflater.inflate(R.layout.popup_purchase, null);
-        } else {
-            popupView = inflater.inflate(R.layout.popup_edit_item, null);
-        }
+        View popupView = inflater.inflate(R.layout.popup_purchase, null);
+
+        TextView nameView = findViewById(R.id.fb_item);
+        String item = nameView.getText().toString();
+
+        TextView itemLabel = popupView.findViewById(R.id.popupItemName);
+        itemLabel.setText(item);
 
         int width = LinearLayout.LayoutParams.WRAP_CONTENT;
         int height = LinearLayout.LayoutParams.WRAP_CONTENT;
@@ -176,6 +176,14 @@ public class ShoppingListActivity extends AppCompatActivity {
                 return true;
             }
         });
+    }
+
+    public void removeItemOnClick(View view) {
+        Log.d(TAG, "Need to finish method for this");
+    }
+
+    public void purchaseItemOnClick(View view) {
+        Log.d(TAG, "Need to finish method for this");
     }
 
 }

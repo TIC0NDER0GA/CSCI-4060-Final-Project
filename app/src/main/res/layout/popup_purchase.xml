@@ -2,10 +2,12 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_gravity="center"
     android:background="#F4F1F1"
     android:gravity="center"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:context=".ShoppingListActivity">
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -14,7 +16,7 @@
         android:orientation="horizontal">
 
         <TextView
-            android:id="@+id/textView6"
+            android:id="@+id/popupItemName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Item Name"
@@ -37,6 +39,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
-        android:text="Purchase" />
+        android:text="Purchase"
+        android:onClick="purchaseItemOnClick"/>
 
 </LinearLayout>
