@@ -44,9 +44,12 @@ public class LoginActivity extends AppCompatActivity {
 
 
         try {
-            if (hdb.getCred()[0] != null && hdb.getCred()[1] != null) {
-                intent = new Intent(this, PurchasedListActivity.class);
-                this.startActivity(intent);
+            if (hdb.getCred() != null && hdb.getCred()[0] != null) {
+                hdb.signinUser(hdb.getCred()[0], hdb.getCred()[1]);
+                // intent = new Intent(this, PurchasedListActivity.class);
+                // this.startActivity(intent);
+            } else {
+
             }
 
         } catch (GeneralSecurityException e) {

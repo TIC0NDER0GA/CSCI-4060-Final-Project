@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -20,6 +21,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.LinkedHashMap;
 
@@ -153,6 +155,7 @@ public class ShoppingListActivity extends AppCompatActivity {
         }
     }
 
+    /*
     public void onButtonShowPopupWindowClick(View view) {
         LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
         View popupView = inflater.inflate(R.layout.popup_purchase, null);
@@ -177,13 +180,7 @@ public class ShoppingListActivity extends AppCompatActivity {
             }
         });
     }
+    */
 
-    public void removeItemOnClick(View view) {
-        Log.d(TAG, "Need to finish method for this");
-    }
-
-    public void purchaseItemOnClick(View view) {
-        Log.d(TAG, "Need to finish method for this");
-    }
 
 }

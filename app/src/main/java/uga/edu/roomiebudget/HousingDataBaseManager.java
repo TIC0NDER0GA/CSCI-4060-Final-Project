@@ -2,9 +2,11 @@ package uga.edu.roomiebudget;
 
 import static android.content.ContentValues.TAG;
 
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -104,27 +106,6 @@ public class HousingDataBaseManager {
                     if (task.isSuccessful()) {
                         try {
                             encryptLogin(email, password);
-                            autoLogin(email, new FireBaseDataCallback() {
-                                @Override
-                                public void onRoomatesPurchasedDataReceived(LinkedHashMap<String, LinkedHashMap<String, Double>> data) {
-
-                                }
-
-                                @Override
-                                public void onItemsDataReceived(LinkedHashMap<String, String> data) {
-
-                                }
-
-                                @Override
-                                public void onPurchasedDataRecieved(LinkedHashMap<String, Double> data) {
-
-                                }
-
-                                @Override
-                                public void onLogin(String[] data) {
-                                    // savePref(data[2],data[0],data[1]);
-                                }
-                            });
                         } catch (GeneralSecurityException e) {
                             throw new RuntimeException(e);
                         } catch (IOException e) {
@@ -355,8 +336,8 @@ public class HousingDataBaseManager {
         privSharedPreferences = EncryptedSharedPreferences.create(context, "user_cred", masterKey,
                 EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
                 EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM);
-        privSharedPreferences.edit().putString("email", email);
-        privSharedPreferences.edit().putString("password",password);
+        privSharedPreferences.edit().putString("email", email).apply();
+        privSharedPreferences.edit().putString("password",password).apply();
     }
 
     public void savePref(String group, String name, String email) {
@@ -416,27 +397,21 @@ public class HousingDataBaseManager {
     }
 
 
-    public void autoLogin(String email,FireBaseDataCallback callback) {
-        uRef = fdb.getReference(DATABASE_USERS + parseEmail(email));
 
-        uRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                auto = new String[3];
-                int i = 0;
-                for (DataSnapshot datasnap: snapshot.getChildren()) {
-                    auto[i] = (String) datasnap.getValue();
-                    i++;
-                }
-                callback.onLogin(auto);
-            }
+    public static void clearAppData(Context context, String packageName) {
+        try {
+            // Get the package manager and activity manager
+            PackageManager pm = context.getPackageManager();
+            ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
+            // Clear the app's data
+            am.clearApplicationUserData();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
+
+
 
 
 
