@@ -131,6 +131,7 @@ public class HousingDataBaseManager {
                             throw new RuntimeException(e);
                         }
                         intent = new Intent(context, ShoppingListActivity.class);
+                        intent.putExtra("user", parseEmail(email));
                         context.startActivity(intent);
                     } else {
                         Toast.makeText(context, "Invalid Login", Toast.LENGTH_SHORT);
@@ -188,9 +189,10 @@ public class HousingDataBaseManager {
                     });
     }
 
-    public void addItem(String group, String item, String id) {
+    public void addItem(String group, String item) {
         fRef = fdb.getReference(DATABASE_ENTRY + "/" + group + "/" + "Item_list");
-        fRef.child(item).setValue(parseEmail(id));
+        fRef.child(item).setValue("");
+
     }
 
     public void purchasedItem(String group, String member, String item, Double price) {
@@ -278,6 +280,7 @@ public class HousingDataBaseManager {
 
 
 
+
     public void createUserWithoutGroup(String email, String group, String name, String password) {
         fAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
@@ -356,7 +359,7 @@ public class HousingDataBaseManager {
         privSharedPreferences.edit().putString("password",password);
     }
 
-    private void savePref(String group, String name, String email) {
+    public void savePref(String group, String name, String email) {
         pubSharedPreferences = context.getSharedPreferences("user_pref",Context.MODE_PRIVATE);
         editor = pubSharedPreferences.edit();
         editor.putString("group", group);
@@ -389,6 +392,27 @@ public class HousingDataBaseManager {
         userdata[1] = pubSharedPreferences.getString("name", null);
         userdata[2] = pubSharedPreferences.getString("email", null);
         return userdata;
+    }
+
+    public void storeUser(String user, FireBaseDataCallback callback) {
+        uRef = fdb.getReference(USER_PREF + "/" + user);
+        String[] userStuff = new String[3];
+        uRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                int i = 0;
+                for (DataSnapshot ds: snapshot.getChildren()) {
+                    userStuff[i] = (String) ds.getValue();
+                    i++;
+                }
+                callback.onLogin(userStuff);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
 

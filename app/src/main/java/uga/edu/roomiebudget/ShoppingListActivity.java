@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -16,6 +17,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.Toast;
@@ -25,21 +27,49 @@ import java.util.LinkedHashMap;
 public class ShoppingListActivity extends AppCompatActivity {
 
     private Button addItem;
-
+    private EditText item_entry;
     private HousingDataBaseManager hdb;
     private ListItemAdapter list_adapter;
     private RecyclerView recyclerView;
     private LinearLayoutManager layoutManager;
+    private Intent intent;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        intent = getIntent();
+        hdb = new HousingDataBaseManager(this);
+
+        if (intent.getStringExtra("user") != null && hdb.getUser() == null) {
+            hdb.storeUser(intent.getStringExtra("user"), new HousingDataBaseManager.FireBaseDataCallback() {
+                @Override
+                public void onRoomatesPurchasedDataReceived(LinkedHashMap<String, LinkedHashMap<String, Double>> data) {
+
+                }
+
+                @Override
+                public void onItemsDataReceived(LinkedHashMap<String, String> data) {
+
+                }
+
+                @Override
+                public void onPurchasedDataRecieved(LinkedHashMap<String, Double> data) {
+
+                }
+
+                @Override
+                public void onLogin(String[] data) {
+                    hdb.savePref(data[2],data[1],data[0]);
+                }
+            });
+        }
+
+
         setContentView(R.layout.activity_shopping_list);
         addItem = findViewById(R.id.button5);
-//        addItem.onButtonShowPopupWindowClicked(R.id.popup_purchase);
         recyclerView = (RecyclerView) findViewById(R.id.shopping_list_recycler);
         layoutManager = new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false);
         recyclerView.setLayoutManager(layoutManager);
-        hdb = new HousingDataBaseManager(this);
+        item_entry = (EditText) findViewById(R.id.editTextTextPersonName2);
         hdb.getItems(hdb.getUser()[0], new HousingDataBaseManager.FireBaseDataCallback() {
             @Override
             public void onRoomatesPurchasedDataReceived(LinkedHashMap<String, LinkedHashMap<String, Double>> data) {
@@ -62,6 +92,38 @@ public class ShoppingListActivity extends AppCompatActivity {
             @Override
             public void onLogin(String[] data) {
 
+            }
+        });
+
+        addItem.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String text = item_entry.getText().toString();
+                hdb.addItem(hdb.getUser()[0], text);
+                hdb.getItems(hdb.getUser()[0], new HousingDataBaseManager.FireBaseDataCallback() {
+                    @Override
+                    public void onRoomatesPurchasedDataReceived(LinkedHashMap<String, LinkedHashMap<String, Double>> data) {
+
+                    }
+
+                    @Override
+                    public void onItemsDataReceived(LinkedHashMap<String, String> data) {
+                        list_adapter = new ListItemAdapter(data);
+                        Log.d(TAG, data.toString());
+                        recyclerView.setAdapter(list_adapter);
+                        list_adapter.notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public void onPurchasedDataRecieved(LinkedHashMap<String, Double> data) {
+
+                    }
+
+                    @Override
+                    public void onLogin(String[] data) {
+
+                    }
+                });
             }
         });
 
