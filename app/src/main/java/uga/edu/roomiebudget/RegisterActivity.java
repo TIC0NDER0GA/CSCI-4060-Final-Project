@@ -12,6 +12,10 @@ import android.widget.EditText;
 import android.widget.Toast;
 import com.google.firebase.auth.FirebaseAuth;
 
+/**
+ * Activity to register for a new account after the user has clicked the login button.
+ * The user can either register with an existing group or create a new group.
+ */
 public class RegisterActivity extends AppCompatActivity {
     private Button signUpButton;
     private Button signUpButton2;
@@ -24,6 +28,11 @@ public class RegisterActivity extends AppCompatActivity {
     private FirebaseAuth fAuth = FirebaseAuth.getInstance();
     private HousingDataBaseManager hdb;
 
+    /**
+     * Creates the register activity.
+     * @param savedInstanceState If the fragment is being re-created from
+     *      a previous saved state, this is the state.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,6 +50,10 @@ public class RegisterActivity extends AppCompatActivity {
         signUpButton2.setOnClickListener(new ButtonClickListener());
     }
 
+    /**
+     * Acts as a listener for the Create User Without Group and Create User with Existing
+     * Group buttons. Displays necessary error messages.
+     */
     private class ButtonClickListener implements View.OnClickListener {
 
         private Intent intent;

@@ -83,7 +83,7 @@ public class ListItemAdapter extends RecyclerView.Adapter<ListItemAdapter.ItemHo
             itemLabel.setText(fb_item.getText().toString());
             int width = LinearLayout.LayoutParams.WRAP_CONTENT;
             int height = LinearLayout.LayoutParams.WRAP_CONTENT;
-            boolean focusable = true; // lets taps outside the popup also dismiss it
+            boolean focusable = true;
             final PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
             popupWindow.showAtLocation(itemView.getRootView(), Gravity.CENTER, 0, 0);
             popupView.setOnTouchListener(new View.OnTouchListener() {

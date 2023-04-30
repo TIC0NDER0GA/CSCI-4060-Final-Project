@@ -24,6 +24,9 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.concurrent.Executor;
 
+/**
+ * Activity to login after the user has clicked the login button.
+ */
 public class LoginActivity extends AppCompatActivity {
 
     private Button continueButton;
@@ -33,6 +36,11 @@ public class LoginActivity extends AppCompatActivity {
 
     HousingDataBaseManager hdb;
 
+    /**
+     * Creates the login activity and checks that the users information is correct.
+     * @param savedInstanceState If the fragment is being re-created from
+     *      a previous saved state, this is the state.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,8 +54,6 @@ public class LoginActivity extends AppCompatActivity {
         try {
             if (hdb.getCred() != null && hdb.getCred()[0] != null) {
                 hdb.signinUser(hdb.getCred()[0], hdb.getCred()[1]);
-                // intent = new Intent(this, PurchasedListActivity.class);
-                // this.startActivity(intent);
             } else {
 
             }
@@ -61,6 +67,9 @@ public class LoginActivity extends AppCompatActivity {
         continueButton.setOnClickListener(new ButtonClickListener());
     }
 
+    /**
+     * Class which acts as a listener for the continue button to allow the user to login.
+     */
     private class ButtonClickListener implements View.OnClickListener {
         @Override
         public void onClick(View view) {
