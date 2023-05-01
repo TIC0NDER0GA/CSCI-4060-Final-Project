@@ -1,12 +1,6 @@
 package uga.edu.roomiebudget;
 
-import static android.content.ContentValues.TAG;
-import static android.content.Context.LAYOUT_INFLATER_SERVICE;
-
-import static androidx.core.content.ContextCompat.getSystemService;
-
 import android.content.Context;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -62,6 +56,7 @@ public class ListItemAdapter extends RecyclerView.Adapter<ListItemAdapter.ItemHo
 
         private TextView fb_item;
         private Button remove;
+        private Button editName;
         private Button purchase;
         private HousingDataBaseManager hbd;
         private ListItemAdapter lia;
@@ -73,40 +68,42 @@ public class ListItemAdapter extends RecyclerView.Adapter<ListItemAdapter.ItemHo
             super(itemView);
             fb_item = (TextView) itemView.findViewById(R.id.fb_item);
             purchase = (Button) itemView.findViewById(R.id.purchaseButton);
-            remove = (Button) itemView.findViewById(R.id.removeButton);
+            editName = (Button) itemView.findViewById(R.id.editNameButton);
             view = itemView;
             hbd = new HousingDataBaseManager(itemView.getContext());
         }
 
         public void bind(String item, ListItemAdapter li, int pos) {
-            fb_item.setText(item);
-            purchase.setOnClickListener(this::onButtonShowPopupWindowClick);
             lia = li;
             position = pos;
-            remove.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
+            fb_item.setText(item);
+            purchase.setOnClickListener(this::onButtonShowPurchasePopupClick);
+            editName.setOnClickListener(this::onButtonShowEditPopupClick);
 
-                    hbd.removeItem(fb_item.getText().toString(), hbd.getUser()[0], new HousingDataBaseManager.DeleteCallback() {
-                        @Override
-                        public void itemDeleted() {
-                            // Log.e(TAG, "DELETE");
-                            li.item_list.remove(pos);
-                            li.notifyDataSetChanged();
-                        }
-
-                        @Override
-                        public void purchasedCleared() {
-
-                        }
-
-                        @Override
-                        public void purchasedDeleted() {
-
-                        }
-                    });
-                }
-            });
+//            remove.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View view) {
+//
+//                    hbd.removeItem(fb_item.getText().toString(), hbd.getUser()[0], new HousingDataBaseManager.DeleteCallback() {
+//                        @Override
+//                        public void itemDeleted() {
+//                            // Log.e(TAG, "DELETE");
+//                            li.item_list.remove(pos);
+//                            li.notifyDataSetChanged();
+//                        }
+//
+//                        @Override
+//                        public void purchasedCleared() {
+//
+//                        }
+//
+//                        @Override
+//                        public void purchasedDeleted() {
+//
+//                        }
+//                    });
+//                }
+//            });
 
         }
 
@@ -115,7 +112,7 @@ public class ListItemAdapter extends RecyclerView.Adapter<ListItemAdapter.ItemHo
 
 
 
-        public void onButtonShowPopupWindowClick(View view) {
+        public void onButtonShowPurchasePopupClick(View view) {
             LayoutInflater inflater = (LayoutInflater) view.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View popupView = inflater.inflate(R.layout.popup_purchase, null);
             TextView itemLabel = popupView.findViewById(R.id.popupItemName);
@@ -176,7 +173,94 @@ public class ListItemAdapter extends RecyclerView.Adapter<ListItemAdapter.ItemHo
             });
         }
 
+
+
+
+    public void onButtonShowEditPopupClick(View view) {
+        LayoutInflater inflater = (LayoutInflater) view.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View popupView = inflater.inflate(R.layout.popup_edit_item_name, null);
+
+        String itemName = fb_item.getText().toString();
+        EditText itemNameET = popupView.findViewById(R.id.itemName);
+        itemNameET.setText(itemName);
+
+        Button saveButton = popupView.findViewById(R.id.saveButton2);
+        Button removeButton = popupView.findViewById(R.id.removeButton3);
+        int width = LinearLayout.LayoutParams.WRAP_CONTENT;
+        int height = LinearLayout.LayoutParams.WRAP_CONTENT;
+        boolean focusable = true;
+        final PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
+        popupWindow.showAtLocation(itemView.getRootView(), Gravity.CENTER, 0, 0);
+
+        String[] userData = hbd.getUser();
+        String group = userData[0];
+        String name = userData[1];
+
+
+        // finish this for saving new name
+        saveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+                    hbd.addItem(group, itemName);
+                    hbd.removeItem(itemName, group, new HousingDataBaseManager.DeleteCallback() {
+                        @Override
+                        public void itemDeleted() {
+                            lia.item_list.remove(position);
+                            lia.notifyDataSetChanged();
+                        }
+
+                        @Override
+                        public void purchasedCleared() {
+                        }
+
+                        @Override
+                        public void purchasedDeleted() {
+                        }
+                    });
+                    popupWindow.dismiss();
+                } catch (NumberFormatException nfe) {
+
+                }
+            }
+        });
+
+        removeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                hbd.removeItem(fb_item.getText().toString(), hbd.getUser()[0], new HousingDataBaseManager.DeleteCallback() {
+                    @Override
+                    public void itemDeleted() {
+                        // Log.e(TAG, "DELETE");
+                        lia.item_list.remove(position);
+                        lia.notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public void purchasedCleared() {
+
+                    }
+
+                    @Override
+                    public void purchasedDeleted() {
+
+                    }
+                });
+            }
+        });
+
+
+        // finish this for removing from shopping list
+        popupView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                popupWindow.dismiss();
+                return true;
+            }
+        });
     }
+
+}
 
 
 

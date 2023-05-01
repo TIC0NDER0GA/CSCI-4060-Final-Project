@@ -32,19 +32,18 @@
             android:text="Purchase"
             android:textAllCaps="false"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/removeButton"
+            app:layout_constraintEnd_toStartOf="@+id/editNameButton"
             app:layout_constraintTop_toTopOf="parent" />
 
         <Button
-            android:id="@+id/removeButton"
+            android:id="@+id/editNameButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Remove"
+            android:text="Edit"
             android:textAllCaps="false"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            />
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </LinearLayout>

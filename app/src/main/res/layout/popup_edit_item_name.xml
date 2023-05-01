@@ -15,7 +15,7 @@
         android:layout_margin="20dp"
         android:orientation="horizontal">
 
-        <TextView
+        <EditText
             android:id="@+id/itemName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -24,16 +24,6 @@
             android:textColor="#000000"
             android:textSize="20sp" />
 
-        <EditText
-            android:id="@+id/priceChange"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:ems="4"
-            android:hint="$$$"
-            android:inputType="text"
-            android:textAlignment="center"
-            android:textSize="20sp" />
     </LinearLayout>
 
     <LinearLayout

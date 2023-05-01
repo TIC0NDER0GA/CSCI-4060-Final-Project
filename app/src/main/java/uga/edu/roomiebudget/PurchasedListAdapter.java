@@ -84,8 +84,8 @@ public class PurchasedListAdapter extends RecyclerView.Adapter<PurchasedListAdap
             itemLabel.setText(itemName);
 
             EditText priceET = popupView.findViewById(R.id.priceChange);
-            Button saveButton = popupView.findViewById(R.id.saveButton);
-            Button removeButton = popupView.findViewById(R.id.removeButton2);
+            Button saveButton = popupView.findViewById(R.id.saveButton2);
+            Button removeButton = popupView.findViewById(R.id.removeButton3);
 
             int width = LinearLayout.LayoutParams.WRAP_CONTENT;
             int height = LinearLayout.LayoutParams.WRAP_CONTENT;
@@ -103,6 +103,7 @@ public class PurchasedListAdapter extends RecyclerView.Adapter<PurchasedListAdap
                     try {
                         Double price = Double.parseDouble(priceET.getText().toString());
                         // edit existing item
+
                         popupWindow.dismiss();
                     } catch (NumberFormatException nfe) {
                         Toast.makeText(view.getContext(), "Enter a price", Toast.LENGTH_SHORT).show();
