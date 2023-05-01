@@ -18,6 +18,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.TextView;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -31,6 +32,7 @@ public class PurchasedListActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private LinearLayoutManager layoutManager;
     private Button settleCosts;
+    private TextView groupListTitle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +44,8 @@ public class PurchasedListActivity extends AppCompatActivity {
         layoutManager = new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false);
         recyclerView.setLayoutManager(layoutManager);
         hdb = new HousingDataBaseManager(this);
+        groupListTitle = findViewById(R.id.listTitle2);
+        groupListTitle.setText(hdb.getUser()[0] + "'s Purchased List");
         hdb.getRoomatesPurchased(hdb.getUser()[0], new HousingDataBaseManager.FireBaseDataCallback() {
             @Override
             public void onRoomatesPurchasedDataReceived(LinkedHashMap<String, LinkedHashMap<String, Double>> data) {

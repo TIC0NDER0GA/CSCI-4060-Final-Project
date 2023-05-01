@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import java.util.LinkedHashMap;
 
@@ -25,6 +26,7 @@ public class ShoppingListActivity extends AppCompatActivity {
     private ListItemAdapter list_adapter;
     private RecyclerView recyclerView;
     private LinearLayoutManager layoutManager;
+    private TextView groupListTitle;
     private Intent intent;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +72,9 @@ public class ShoppingListActivity extends AppCompatActivity {
         layoutManager = new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false);
         recyclerView.setLayoutManager(layoutManager);
         item_entry = (EditText) findViewById(R.id.editTextTextPersonName2);
+        groupListTitle = findViewById(R.id.listTitle);
+        groupListTitle.setText(hdb.getUser()[0] + "'s Shopping List");
+
         hdb.getItems(hdb.getUser()[0], new HousingDataBaseManager.FireBaseDataCallback() {
             @Override
             public void onRoomatesPurchasedDataReceived(LinkedHashMap<String, LinkedHashMap<String, Double>> data) {

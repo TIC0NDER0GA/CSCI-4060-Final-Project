@@ -9,9 +9,10 @@
     tools:context=".PurchasedListActivity">
 
     <TextView
-        android:id="@+id/textView7"
+        android:id="@+id/listTitle2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="30dp"
         android:text="Group Name's Purchased List"
         android:textColor="#000000"
         android:textSize="20sp"
@@ -19,14 +20,17 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/purchased_by_user_recycler"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="30dp"
+        android:layout_marginBottom="30dp"
         android:orientation="vertical" />
 
     <Button
         android:id="@+id/settleCostButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="30dp"
         android:text="Settle Costs"
         android:textAllCaps="false" />
 </LinearLayout>
