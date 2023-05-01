@@ -102,8 +102,24 @@ public class PurchasedListAdapter extends RecyclerView.Adapter<PurchasedListAdap
                 public void onClick(View view) {
                     try {
                         Double price = Double.parseDouble(priceET.getText().toString());
-                        // edit existing item
+                        hbd.purchasedItem(hbd.getUser()[0],hbd.getUser()[1], purchased_name.getText().toString(), price);
+                        pli.purchased_list.set(position, new Map.Entry<String, Double>() {
+                            @Override
+                            public String getKey() {
+                                return purchased_name.getText().toString();
+                            }
 
+                            @Override
+                            public Double getValue() {
+                                return price;
+                            }
+
+                            @Override
+                            public Double setValue(Double aDouble) {
+                                return null;
+                            }
+                        });
+                        pli.notifyDataSetChanged();
                         popupWindow.dismiss();
                     } catch (NumberFormatException nfe) {
                         Toast.makeText(view.getContext(), "Enter a price", Toast.LENGTH_SHORT).show();

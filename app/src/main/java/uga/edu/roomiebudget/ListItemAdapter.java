@@ -207,7 +207,24 @@ public class ListItemAdapter extends RecyclerView.Adapter<ListItemAdapter.ItemHo
                         @Override
                         public void itemDeleted() {
                             lia.item_list.remove(position);
+                            lia.item_list.add(new Map.Entry<String, String>() {
+                                @Override
+                                public String getKey() {
+                                    return itemNameET.getText().toString();
+                                }
+
+                                @Override
+                                public String getValue() {
+                                    return "";
+                                }
+
+                                @Override
+                                public String setValue(String s) {
+                                    return null;
+                                }
+                            });
                             lia.notifyDataSetChanged();
+                            hbd.addItem(group, itemNameET.getText().toString());
                         }
 
                         @Override
