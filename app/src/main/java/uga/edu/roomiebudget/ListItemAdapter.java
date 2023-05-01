@@ -34,7 +34,7 @@ public class ListItemAdapter extends RecyclerView.Adapter<ListItemAdapter.ItemHo
 
     public ListItemAdapter(LinkedHashMap<String, String> item_list) {
         this.item_list = new ArrayList<>(item_list.entrySet());
-        Log.e(TAG, this.item_list.toString());
+        // Log.e(TAG, this.item_list.toString());
     }
 
 
@@ -48,13 +48,13 @@ public class ListItemAdapter extends RecyclerView.Adapter<ListItemAdapter.ItemHo
 
     @Override
     public void onBindViewHolder(@NonNull ItemHolder holder, int position) {
-        holder.bind(item_list.get(position).getKey());
+        holder.bind(item_list.get(position).getKey(), this, position);
     }
 
 
     @Override
     public int getItemCount() {
-        Log.e(TAG, String.valueOf(item_list.size()));
+        // Log.e(TAG, String.valueOf(item_list.size()));
         return item_list.size();
     }
 
@@ -64,8 +64,11 @@ public class ListItemAdapter extends RecyclerView.Adapter<ListItemAdapter.ItemHo
         private Button remove;
         private Button purchase;
         private HousingDataBaseManager hbd;
+        private ListItemAdapter lia;
 
         private View view;
+
+        private int position;
         public ItemHolder(@NonNull View itemView) {
             super(itemView);
             fb_item = (TextView) itemView.findViewById(R.id.fb_item);
@@ -75,17 +78,40 @@ public class ListItemAdapter extends RecyclerView.Adapter<ListItemAdapter.ItemHo
             hbd = new HousingDataBaseManager(itemView.getContext());
         }
 
-        public void bind(String item) {
+        public void bind(String item, ListItemAdapter li, int pos) {
             fb_item.setText(item);
             purchase.setOnClickListener(this::onButtonShowPopupWindowClick);
+            lia = li;
+            position = pos;
             remove.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    // delete existing item
+
+                    hbd.removeItem(fb_item.getText().toString(), hbd.getUser()[0], new HousingDataBaseManager.DeleteCallback() {
+                        @Override
+                        public void itemDeleted() {
+                            // Log.e(TAG, "DELETE");
+                            li.item_list.remove(pos);
+                            li.notifyDataSetChanged();
+                        }
+
+                        @Override
+                        public void purchasedCleared() {
+
+                        }
+
+                        @Override
+                        public void purchasedDeleted() {
+
+                        }
+                    });
                 }
             });
 
         }
+
+
+
 
 
 
@@ -100,7 +126,6 @@ public class ListItemAdapter extends RecyclerView.Adapter<ListItemAdapter.ItemHo
             EditText priceET = popupView.findViewById(R.id.priceEditText);
 
             Button purchaseButton = popupView.findViewById(R.id.popupPurchButton);
-
             int width = LinearLayout.LayoutParams.WRAP_CONTENT;
             int height = LinearLayout.LayoutParams.WRAP_CONTENT;
             boolean focusable = true;
@@ -117,12 +142,30 @@ public class ListItemAdapter extends RecyclerView.Adapter<ListItemAdapter.ItemHo
                     try {
                         Double price = Double.parseDouble(priceET.getText().toString());
                         hbd.purchasedItem(group, name, itemName, price);
+                        hbd.removeItem(itemName, group, new HousingDataBaseManager.DeleteCallback() {
+                            @Override
+                            public void itemDeleted() {
+                                lia.item_list.remove(position);
+                                lia.notifyDataSetChanged();
+                            }
+
+                            @Override
+                            public void purchasedCleared() {
+
+                            }
+
+                            @Override
+                            public void purchasedDeleted() {
+
+                            }
+                        });
                         popupWindow.dismiss();
                     } catch (NumberFormatException nfe) {
                         Toast.makeText(view.getContext(), "Enter a price", Toast.LENGTH_SHORT).show();
                     }
                 }
             });
+
 
             popupView.setOnTouchListener(new View.OnTouchListener() {
                 @Override

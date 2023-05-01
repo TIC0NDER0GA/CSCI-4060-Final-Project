@@ -20,6 +20,8 @@ import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 
 import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 public class PurchasedListActivity extends AppCompatActivity {
 
@@ -50,6 +52,12 @@ public class PurchasedListActivity extends AppCompatActivity {
             }
 
             @Override
+            public void onCalculationsReceived(LinkedHashMap<String,Double> data) {
+
+            }
+
+
+            @Override
             public void onItemsDataReceived(LinkedHashMap<String, String> data) {
 
             }
@@ -63,6 +71,8 @@ public class PurchasedListActivity extends AppCompatActivity {
             public void onLogin(String[] data) {
 
             }
+
+
         });
     }
 

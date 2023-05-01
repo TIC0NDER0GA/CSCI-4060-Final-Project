@@ -39,7 +39,7 @@ public class PurchasedListAdapter extends RecyclerView.Adapter<PurchasedListAdap
 
     @Override
     public void onBindViewHolder(@NonNull PurchasedItemHolder holder, int position) {
-        holder.bind(purchased_list.get(position).getKey(), purchased_list.get(position).getValue());
+        holder.bind(purchased_list.get(position).getKey(), purchased_list.get(position).getValue(), this, position);
     }
 
 
@@ -48,17 +48,16 @@ public class PurchasedListAdapter extends RecyclerView.Adapter<PurchasedListAdap
         return purchased_list.size();
     }
 
-    public void overwriteItem(int position, String key, double value) {
-        Map.Entry<String, Double> entry = purchased_list.get(position);
-        entry.setValue(value);
-        notifyDataSetChanged();
-    }
+
 
     public class PurchasedItemHolder extends RecyclerView.ViewHolder {
         private TextView purchased_name;
         private TextView purchased_price;
         private Button editButton;
         private HousingDataBaseManager hbd;
+        private int position;
+
+        PurchasedListAdapter pli;
         public PurchasedItemHolder(@NonNull View itemView) {
             super(itemView);
             purchased_name = (TextView)  itemView.findViewById(R.id.purchased_name);
@@ -67,10 +66,12 @@ public class PurchasedListAdapter extends RecyclerView.Adapter<PurchasedListAdap
             hbd = new HousingDataBaseManager(itemView.getContext());
         }
 
-        public void bind(String User, Double price) {
+        public void bind(String User, Double price, PurchasedListAdapter pl, int pos) {
             purchased_name.setText(User);
             purchased_price.setText(String.valueOf(price));
             editButton.setOnClickListener(this::onButtonShowPopupWindowClick);
+            pli = pl;
+            position = pos;
             // onclick methods, similar to list item adapter
         }
 
@@ -112,9 +113,32 @@ public class PurchasedListAdapter extends RecyclerView.Adapter<PurchasedListAdap
             removeButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    // remove existing item & place back on shopping list
+                    hbd.removePurchased(hbd.getUser()[2],hbd.getUser()[0],itemName, new HousingDataBaseManager.DeleteCallback() {
+                        @Override
+                        public void itemDeleted() {
+
+                        }
+
+                        @Override
+                        public void purchasedCleared() {
+
+                        }
+
+                        @Override
+                        public void purchasedDeleted() {
+                            hbd.addItem(hbd.getUser()[0], itemName);
+                            hbd.removePurchasedUser(hbd.getUser()[2],hbd.getUser()[0],itemName);
+                            if (pli.purchased_list.size() > 0) {
+                                pli.purchased_list.remove(position);
+                                pli.notifyDataSetChanged();
+                            }
+                            popupWindow.dismiss();
+                        }
+                    });
                 }
             });
+
+
 
             popupView.setOnTouchListener(new View.OnTouchListener() {
                 @Override

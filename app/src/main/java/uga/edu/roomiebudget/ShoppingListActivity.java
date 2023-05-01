@@ -7,21 +7,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.PopupWindow;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.LinkedHashMap;
 
@@ -40,10 +32,16 @@ public class ShoppingListActivity extends AppCompatActivity {
         intent = getIntent();
         hdb = new HousingDataBaseManager(this);
 
-        if (intent.getStringExtra("user") != null && hdb.getUser() == null) {
+        if (intent.getStringExtra("user") != null && hdb.getUser()[0] == null) {
+            Log.d(TAG, "USER GOT AND PREF GOT");
             hdb.storeUser(intent.getStringExtra("user"), new HousingDataBaseManager.FireBaseDataCallback() {
                 @Override
                 public void onRoomatesPurchasedDataReceived(LinkedHashMap<String, LinkedHashMap<String, Double>> data) {
+
+                }
+
+                @Override
+                public void onCalculationsReceived(LinkedHashMap<String,Double> data) {
 
                 }
 
@@ -62,6 +60,7 @@ public class ShoppingListActivity extends AppCompatActivity {
                     hdb.savePref(data[2],data[1],data[0]);
                 }
             });
+
         }
 
 
@@ -74,6 +73,11 @@ public class ShoppingListActivity extends AppCompatActivity {
         hdb.getItems(hdb.getUser()[0], new HousingDataBaseManager.FireBaseDataCallback() {
             @Override
             public void onRoomatesPurchasedDataReceived(LinkedHashMap<String, LinkedHashMap<String, Double>> data) {
+
+            }
+
+            @Override
+            public void onCalculationsReceived(LinkedHashMap<String,Double> data) {
 
             }
 
@@ -104,6 +108,11 @@ public class ShoppingListActivity extends AppCompatActivity {
                 hdb.getItems(hdb.getUser()[0], new HousingDataBaseManager.FireBaseDataCallback() {
                     @Override
                     public void onRoomatesPurchasedDataReceived(LinkedHashMap<String, LinkedHashMap<String, Double>> data) {
+
+                    }
+
+                    @Override
+                    public void onCalculationsReceived(LinkedHashMap<String,Double> data) {
 
                     }
 

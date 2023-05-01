@@ -52,7 +52,7 @@ public class LoginActivity extends AppCompatActivity {
 
 
         try {
-            if (hdb.getCred() != null && hdb.getCred()[0] != null) {
+            if (hdb.getCred() != null && hdb.getCred()[0] != null ) {
                 hdb.signinUser(hdb.getCred()[0], hdb.getCred()[1]);
             } else {
 

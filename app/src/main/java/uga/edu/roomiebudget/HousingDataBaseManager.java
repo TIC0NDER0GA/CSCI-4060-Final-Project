@@ -8,9 +8,11 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.util.Log;
+import android.widget.Adapter;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.security.crypto.EncryptedSharedPreferences;
 import androidx.security.crypto.MasterKey;
 
@@ -27,7 +29,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.AbstractMap;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -79,7 +81,7 @@ public class HousingDataBaseManager {
         uRef = fdb.getReference(DATABASE_USERS);
         uRef = fdb.getReference(DATABASE_USERS + "/" + parseEmail(email));
         uRef.child("group").setValue(user);
-        uRef.child("full_name").setValue(fullName);
+        uRef.child("full_name").setValue(parseEmail(email));
         uRef.child("email").setValue(email);
     }
 
@@ -112,10 +114,11 @@ public class HousingDataBaseManager {
                             throw new RuntimeException(e);
                         }
                         intent = new Intent(context, ShoppingListActivity.class);
+                        Log.d(TAG, parseEmail(email));
                         intent.putExtra("user", parseEmail(email));
                         context.startActivity(intent);
                     } else {
-                        Toast.makeText(context, "Invalid Login", Toast.LENGTH_SHORT);
+                        Toast.makeText(context, "Invalid Login", Toast.LENGTH_SHORT).show();
                     }
 
                 }
@@ -232,8 +235,6 @@ public class HousingDataBaseManager {
 
     }
 
-
-
     public void createUserWithGroup(String email, String group, String name, String password) {
         //  Log.e(TAG, "GROUP: " + group);
             fAuth.createUserWithEmailAndPassword(email, password)
@@ -258,6 +259,8 @@ public class HousingDataBaseManager {
                         }
                     });
     }
+
+
 
 
 
@@ -331,6 +334,58 @@ public class HousingDataBaseManager {
     }
 
 
+
+
+    public void getRoomatesPurchasedCosts(String group, FireBaseDataCallback callback) {
+        LinkedHashMap<String, Double> data = new LinkedHashMap<>();
+
+
+        fRef = fdb.getReference(DATABASE_ENTRY + "/" + group);
+        fRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                double totalSpent = 0;
+                double totalUsers = 0;
+                for (DataSnapshot userSnapshot : snapshot.getChildren()) {
+                    String userId = userSnapshot.getKey();
+                    if (userId.equals("Item_list") || userId.equals("Recently_purchased")) {
+                        continue;
+                    }
+
+
+                    double userTotal = 0;
+                    for (DataSnapshot itemSnapshot : userSnapshot.getChildren()) {
+                        Object value = itemSnapshot.getValue();
+
+                        if (value instanceof Double) {
+                            userTotal += (Double) value;
+                            totalSpent += (Double) value;
+                        } else if (value instanceof Long) {
+                            String valLong = String.valueOf(value);
+                            Double doubleValue = Double.parseDouble(valLong);
+                            userTotal += doubleValue;
+                            totalSpent += doubleValue;
+                        }
+                    }
+
+                    data.put(userId, userTotal);
+                    totalUsers++;
+                }
+
+                double average = totalSpent / totalUsers;
+                data.put("Average cost per roomate", average);
+                data.put("Total spent by group", totalSpent);
+                callback.onCalculationsReceived(data);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                // handle cancellation
+            }
+        });
+    }
+
+
     private void encryptLogin(String email, String password) throws GeneralSecurityException, IOException {
         masterKey = new MasterKey.Builder(context).setKeyScheme(MasterKey.KeyScheme.AES256_GCM).build();
         privSharedPreferences = EncryptedSharedPreferences.create(context, "user_cred", masterKey,
@@ -343,10 +398,9 @@ public class HousingDataBaseManager {
     public void savePref(String group, String name, String email) {
         pubSharedPreferences = context.getSharedPreferences("user_pref",Context.MODE_PRIVATE);
         editor = pubSharedPreferences.edit();
-        editor.putString("group", group);
-        editor.putString("name", name);
-        editor.putString("email", parseEmail(email));
-        editor.apply();
+        editor.putString("group", group).apply();
+        editor.putString("name", name).apply();
+        editor.putString("email", email).apply();
     }
 
 
@@ -376,7 +430,7 @@ public class HousingDataBaseManager {
     }
 
     public void storeUser(String user, FireBaseDataCallback callback) {
-        uRef = fdb.getReference(USER_PREF + "/" + user);
+        uRef = fdb.getReference(DATABASE_USERS + "/" + user);
         String[] userStuff = new String[3];
         uRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -384,6 +438,8 @@ public class HousingDataBaseManager {
                 int i = 0;
                 for (DataSnapshot ds: snapshot.getChildren()) {
                     userStuff[i] = (String) ds.getValue();
+                    Log.d(TAG, userStuff[i]);
+                    Log.d(TAG, "BRUH");
                     i++;
                 }
                 callback.onLogin(userStuff);
@@ -411,7 +467,106 @@ public class HousingDataBaseManager {
         }
     }
 
+    public void removeItem(String item, String group, DeleteCallback callback) {
+        fRef = fdb.getReference(DATABASE_ENTRY + "/" + group + "/" + "Item_list").child(item);
+        Log.e(TAG, group);
+        fRef.removeValue(new DatabaseReference.CompletionListener() {
+            @Override
+            public void onComplete(@Nullable DatabaseError error, @NonNull DatabaseReference ref) {
+                if (error == null) {
+                    // Notify the callback that the data has changed
+                    if (callback != null) {
+                        callback.itemDeleted();
+                        Log.e(TAG, callback.toString());
+                    }
 
+                }
+            }
+        });
+    }
+
+    public void removePurchased(String user, String group, String item, DeleteCallback callback) {
+        fRef = fdb.getReference(DATABASE_ENTRY + "/" + group + "/" + "Recently_Purchased").child(item);
+        fRef.removeValue(new DatabaseReference.CompletionListener() {
+            @Override
+            public void onComplete(@Nullable DatabaseError error, @NonNull DatabaseReference ref) {
+                if (error == null) {
+                    // Notify the callback that the data has changed
+                    if (callback != null) {
+                        callback.purchasedDeleted();
+                    }
+                }
+            }
+        });
+
+
+        /*
+        uRef = fdb.getReference(DATABASE_ENTRY + "/" + group + "/" + user).child(item);
+        uRef.removeValue(new DatabaseReference.CompletionListener() {
+            @Override
+            public void onComplete(@Nullable DatabaseError error, @NonNull DatabaseReference ref) {
+                if (error == null) {
+                    // Notify the callback that the data has changed
+                    if (callback != null) {
+                        callback.purchasedDeleted();
+                    }
+                }
+            }
+        });
+         */
+    }
+
+    public void removePurchasedUser(String user, String group, String item) {
+        uRef = fdb.getReference(DATABASE_ENTRY + "/" + group + "/" + user).child(item);
+        uRef.removeValue();
+
+        /* uRef.removeValue(new DatabaseReference.CompletionListener() {
+            @Override
+            public void onComplete(@Nullable DatabaseError error, @NonNull DatabaseReference ref) {
+                if (error == null) {
+                    // Notify the callback that the data has changed
+                    if (callback != null) {
+                        callback.purchasedDeleted();
+                    }
+                }
+            }
+        }); */
+    }
+
+
+    public void clearAllPurchasedData(String group) {
+        fRef = fdb.getReference(DATABASE_ENTRY).child(group);
+
+        fRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                // iterate over the child nodes of the group node
+                for (DataSnapshot childSnapshot : snapshot.getChildren()) {
+                    String childKey = childSnapshot.getKey();
+                    // skip the Item_list node
+                    if (childKey.equals("Item_list")) {
+                        continue;
+                    }
+
+                    // delete the children of the node
+                    DatabaseReference nodeRef = childSnapshot.getRef();
+                    nodeRef.removeValue(new DatabaseReference.CompletionListener() {
+                        @Override
+                        public void onComplete(@Nullable DatabaseError error, @NonNull DatabaseReference ref) {
+                            if (error != null) {
+                                // handle error
+                            }
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                // handle error
+            }
+        });
+    }
 
 
 
@@ -423,12 +578,23 @@ public class HousingDataBaseManager {
 
     public interface FireBaseDataCallback {
         void onRoomatesPurchasedDataReceived(LinkedHashMap<String, LinkedHashMap<String, Double>> data);
+        void onCalculationsReceived(LinkedHashMap<String,Double> data);
         void onItemsDataReceived(LinkedHashMap<String, String> data);
 
         void onPurchasedDataRecieved(LinkedHashMap<String, Double> data);
 
         void onLogin(String[] data);
     }
+
+    public interface DeleteCallback {
+        void itemDeleted();
+        void purchasedCleared();
+
+        void purchasedDeleted();
+
+    }
+
+
 
 
 }
