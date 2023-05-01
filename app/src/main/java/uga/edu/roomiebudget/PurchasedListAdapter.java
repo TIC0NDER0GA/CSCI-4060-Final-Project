@@ -1,9 +1,17 @@
 package uga.edu.roomiebudget;
 
+import android.content.Context;
+import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -47,19 +55,74 @@ public class PurchasedListAdapter extends RecyclerView.Adapter<PurchasedListAdap
     }
 
     public class PurchasedItemHolder extends RecyclerView.ViewHolder {
-        TextView purchased_name;
-        TextView purchased_price;
+        private TextView purchased_name;
+        private TextView purchased_price;
+        private Button editButton;
+        private HousingDataBaseManager hbd;
         public PurchasedItemHolder(@NonNull View itemView) {
             super(itemView);
             purchased_name = (TextView)  itemView.findViewById(R.id.purchased_name);
             purchased_price = (TextView) itemView.findViewById(R.id.purchased_price);
+            editButton = (Button) itemView.findViewById(R.id.editButton);
+            hbd = new HousingDataBaseManager(itemView.getContext());
         }
 
         public void bind(String User, Double price) {
             purchased_name.setText(User);
             purchased_price.setText(String.valueOf(price));
-
+            editButton.setOnClickListener(this::onButtonShowPopupWindowClick);
             // onclick methods, similar to list item adapter
+        }
+
+        public void onButtonShowPopupWindowClick(View view) {
+            LayoutInflater inflater = (LayoutInflater) view.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View popupView = inflater.inflate(R.layout.popup_edit_item, null);
+            TextView itemLabel = popupView.findViewById(R.id.itemName);
+
+            String itemName = purchased_name.getText().toString();
+            itemLabel.setText(itemName);
+
+            EditText priceET = popupView.findViewById(R.id.priceChange);
+            Button saveButton = popupView.findViewById(R.id.saveButton);
+            Button removeButton = popupView.findViewById(R.id.removeButton2);
+
+            int width = LinearLayout.LayoutParams.WRAP_CONTENT;
+            int height = LinearLayout.LayoutParams.WRAP_CONTENT;
+            boolean focusable = true;
+            final PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
+            popupWindow.showAtLocation(itemView.getRootView(), Gravity.CENTER, 0, 0);
+
+            String[] userData = hbd.getUser();
+            String group = userData[0];
+            String name = userData[1];
+
+            saveButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    try {
+                        Double price = Double.parseDouble(priceET.getText().toString());
+                        // edit existing item
+                        popupWindow.dismiss();
+                    } catch (NumberFormatException nfe) {
+                        Toast.makeText(view.getContext(), "Enter a price", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+
+            removeButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    // remove existing item & place back on shopping list
+                }
+            });
+
+            popupView.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    popupWindow.dismiss();
+                    return true;
+                }
+            });
         }
 
     }

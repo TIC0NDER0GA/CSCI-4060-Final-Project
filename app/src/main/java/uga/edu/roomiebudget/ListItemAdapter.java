@@ -61,7 +61,7 @@ public class ListItemAdapter extends RecyclerView.Adapter<ListItemAdapter.ItemHo
     public static class ItemHolder extends RecyclerView.ViewHolder {
 
         private TextView fb_item;
-        private Button edit;
+        private Button remove;
         private Button purchase;
         private HousingDataBaseManager hbd;
 
@@ -70,7 +70,7 @@ public class ListItemAdapter extends RecyclerView.Adapter<ListItemAdapter.ItemHo
             super(itemView);
             fb_item = (TextView) itemView.findViewById(R.id.fb_item);
             purchase = (Button) itemView.findViewById(R.id.purchaseButton);
-            edit = (Button) itemView.findViewById(R.id.removeButton);
+            remove = (Button) itemView.findViewById(R.id.removeButton);
             view = itemView;
             hbd = new HousingDataBaseManager(itemView.getContext());
         }
@@ -78,6 +78,13 @@ public class ListItemAdapter extends RecyclerView.Adapter<ListItemAdapter.ItemHo
         public void bind(String item) {
             fb_item.setText(item);
             purchase.setOnClickListener(this::onButtonShowPopupWindowClick);
+            remove.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    // delete existing item
+                }
+            });
+
         }
 
 
@@ -112,11 +119,10 @@ public class ListItemAdapter extends RecyclerView.Adapter<ListItemAdapter.ItemHo
                         hbd.purchasedItem(group, name, itemName, price);
                         popupWindow.dismiss();
                     } catch (NumberFormatException nfe) {
-//                        Toast.makeText(this.ListItemAdapter, "Enter a price", Toast.LENGTH_SHORT);
+                        Toast.makeText(view.getContext(), "Enter a price", Toast.LENGTH_SHORT).show();
                     }
                 }
             });
-
 
             popupView.setOnTouchListener(new View.OnTouchListener() {
                 @Override
