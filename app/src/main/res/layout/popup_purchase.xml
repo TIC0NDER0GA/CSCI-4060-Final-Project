@@ -24,7 +24,7 @@
             android:textSize="20sp" />
 
         <EditText
-            android:id="@+id/editText"
+            android:id="@+id/priceEditText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ems="4"
@@ -35,11 +35,10 @@
     </LinearLayout>
 
     <Button
-        android:id="@+id/button6"
+        android:id="@+id/popupPurchButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
-        android:text="Purchase"
-        android:onClick="purchaseItemOnClick"/>
+        android:text="Purchase" />
 
 </LinearLayout>

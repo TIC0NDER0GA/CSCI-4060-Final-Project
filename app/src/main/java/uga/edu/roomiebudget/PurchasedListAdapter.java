@@ -58,6 +58,8 @@ public class PurchasedListAdapter extends RecyclerView.Adapter<PurchasedListAdap
         public void bind(String User, Double price) {
             purchased_name.setText(User);
             purchased_price.setText(String.valueOf(price));
+
+            // onclick methods, similar to list item adapter
         }
 
     }
