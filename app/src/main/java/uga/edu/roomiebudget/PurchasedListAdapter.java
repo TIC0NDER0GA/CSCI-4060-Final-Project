@@ -144,7 +144,7 @@ public class PurchasedListAdapter extends RecyclerView.Adapter<PurchasedListAdap
                         @Override
                         public void purchasedDeleted() {
                             hbd.addItem(hbd.getUser()[0], itemName);
-                            hbd.removePurchasedUser(hbd.getUser()[2],hbd.getUser()[0],itemName);
+                            hbd.removePurchasedUser(hbd.getUser()[1],hbd.getUser()[0],itemName);
                             if (pli.purchased_list.size() > 0) {
                                 pli.purchased_list.remove(position);
                                 pli.notifyDataSetChanged();

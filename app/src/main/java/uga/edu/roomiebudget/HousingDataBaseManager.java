@@ -112,37 +112,17 @@ public class HousingDataBaseManager {
 
 
 
-    /*
-    public void addUserToGroup(String email, String group) throws Exception {
-        fRef = fdb.getReference(DATABASE_ENTRY + "/" + group);
-
-        fRef.child(parseEmail(email)).setValue("").addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if (task.isSuccessful()) {
-
-                } else {
-                    try {
-                        throw new GroupException("Group Already Exists");
-                    } catch (GroupException e) {
-                        Toast.makeText(context, "User Already in group", Toast.LENGTH_SHORT).show();
-                    }
-                }
-            }
-        });
-    }
-*/
 
 
 
-    public void createGroup(String email, String group) throws Exception{
+
+    public void createGroup(String group) throws Exception{
         fRef = fdb.getReference(DATABASE_ENTRY);
         fRef.child(group).setValue("").addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()) {
                                 fRef = fdb.getReference(DATABASE_ENTRY + "/" + group);
-                                fRef.child(parseEmail(email)).setValue("");
                                 Log.d(TAG, "Added email to group");
                                 fRef.child("Item_list").setValue("");
                                 Log.d(TAG, "Added Item_list to group");
@@ -229,7 +209,7 @@ public class HousingDataBaseManager {
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if (task.isSuccessful()) {
                                 try {
-                                    createGroup(email, group);
+                                    createGroup(group);
                                     savePref(group, name, email);
                                     addUser(email, group, name);
                                     Log.d(TAG, "USER with email: " + email + "and password: " + password + "created.");
@@ -255,7 +235,6 @@ public class HousingDataBaseManager {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             try {
-                                // addUserToGroup(email, group);
                                 savePref(group, name, email);
                                 addUser(email, group, name);
                                 Log.d(TAG, "USER with email: " + email + "and password: " + password + "created.");
