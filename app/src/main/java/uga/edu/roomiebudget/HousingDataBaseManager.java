@@ -68,14 +68,7 @@ public class HousingDataBaseManager {
         editor = preferences.edit();
     }
 
-    public void makeGroup(String group) {
-        fRef = fdb.getReference(DATABASE_ENTRY);
-        fRef.child(group).setValue("");
-        fRef = fdb.getReference(DATABASE_ENTRY + "/" + group);
-        fRef.child("Item_list").setValue("");
-        fRef.child("Recently_purchased").setValue("");
 
-    }
 
     public void addUser(String email, String user, String fullName) {
         uRef = fdb.getReference(DATABASE_USERS);
@@ -85,20 +78,12 @@ public class HousingDataBaseManager {
         uRef.child("email").setValue(email);
     }
 
-    public void addMember(String group, String username) {
-        fRef = fdb.getReference(DATABASE_ENTRY + "/" + group);
-        fRef.child(username).setValue("");
-    }
 
     public String parseEmail(String email) {
         email = email.substring(0, email.indexOf('@'));
         return email;
     }
 
-    public void addGroupToUser(String user, String group) {
-        uRef = fdb.getReference(DATABASE_USERS + "/" + user);
-        uRef.child("dorm").setValue(group);
-    }
 
 
     public void signinUser(String email, String password) {
@@ -127,6 +112,7 @@ public class HousingDataBaseManager {
 
 
 
+    /*
     public void addUserToGroup(String email, String group) throws Exception {
         fRef = fdb.getReference(DATABASE_ENTRY + "/" + group);
 
@@ -145,7 +131,7 @@ public class HousingDataBaseManager {
             }
         });
     }
-
+*/
 
 
 
@@ -262,9 +248,6 @@ public class HousingDataBaseManager {
 
 
 
-
-
-
     public void createUserWithoutGroup(String email, String group, String name, String password) {
         fAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
@@ -272,7 +255,7 @@ public class HousingDataBaseManager {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             try {
-                                addUserToGroup(email, group);
+                                // addUserToGroup(email, group);
                                 savePref(group, name, email);
                                 addUser(email, group, name);
                                 Log.d(TAG, "USER with email: " + email + "and password: " + password + "created.");
@@ -454,13 +437,11 @@ public class HousingDataBaseManager {
 
 
 
-    public static void clearAppData(Context context, String packageName) {
+    public static void clearAppData(Context context) {
         try {
             // Get the package manager and activity manager
             PackageManager pm = context.getPackageManager();
             ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-
-            // Clear the app's data
             am.clearApplicationUserData();
         } catch (Exception e) {
             e.printStackTrace();

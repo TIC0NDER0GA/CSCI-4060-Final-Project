@@ -98,6 +98,7 @@ public class PurchasedListActivity extends AppCompatActivity {
                 return true;
             case R.id.logoutItem:
                 intent = new Intent(this, MainActivity.class);
+                HousingDataBaseManager.clearAppData(this);
                 startActivity(intent);
                 return true;
             default:
