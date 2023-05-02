@@ -445,8 +445,8 @@ public class HousingDataBaseManager {
         });
     }
 
-    public void removePurchased(String user, String group, String item, DeleteCallback callback) {
-        fRef = fdb.getReference(DATABASE_ENTRY + "/" + group + "/" + "Recently_Purchased").child(item);
+    public void removePurchased( String group, String item, DeleteCallback callback) {
+        fRef = fdb.getReference(DATABASE_ENTRY + "/" + group + "/" + "Recently_purchased").child(item);
         fRef.removeValue(new DatabaseReference.CompletionListener() {
             @Override
             public void onComplete(@Nullable DatabaseError error, @NonNull DatabaseReference ref) {

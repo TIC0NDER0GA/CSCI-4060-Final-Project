@@ -130,7 +130,7 @@ public class PurchasedListAdapter extends RecyclerView.Adapter<PurchasedListAdap
             removeButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    hbd.removePurchased(hbd.getUser()[2],hbd.getUser()[0],itemName, new HousingDataBaseManager.DeleteCallback() {
+                    hbd.removePurchased(hbd.getUser()[0],itemName, new HousingDataBaseManager.DeleteCallback() {
                         @Override
                         public void itemDeleted() {
 
