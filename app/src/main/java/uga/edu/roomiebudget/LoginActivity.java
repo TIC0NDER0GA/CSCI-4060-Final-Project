@@ -33,7 +33,6 @@ public class LoginActivity extends AppCompatActivity {
     private EditText usernameET;
     private EditText passwordET;
     private Intent intent;
-
     HousingDataBaseManager hdb;
 
     /**
@@ -49,21 +48,17 @@ public class LoginActivity extends AppCompatActivity {
         usernameET = findViewById(R.id.userLogin);
         passwordET = findViewById(R.id.passwordLogin);
         hdb = new HousingDataBaseManager(this);
-
-
         try {
             if (hdb.getCred() != null && hdb.getCred()[0] != null ) {
                 hdb.signinUser(hdb.getCred()[0], hdb.getCred()[1]);
             } else {
 
             }
-
         } catch (GeneralSecurityException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
         continueButton.setOnClickListener(new ButtonClickListener());
     }
 
@@ -78,6 +73,4 @@ public class LoginActivity extends AppCompatActivity {
             hdb.signinUser(username,password);
         }
     }
-
-
 }

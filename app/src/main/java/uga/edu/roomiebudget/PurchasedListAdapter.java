@@ -21,15 +21,30 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * List item adapter class to display each individual item on the purchased list using the correct
+ * layout for purchased list items.
+ */
 public class PurchasedListAdapter extends RecyclerView.Adapter<PurchasedListAdapter.PurchasedItemHolder> {
-
     private List<Map.Entry<String, Double>> purchased_list;
 
-
+    /**
+     * Constructor for a list item adapter object.
+     * Sets up the list of items.
+     * @param purchased_list
+     */
     public PurchasedListAdapter(LinkedHashMap<String, Double> purchased_list) {
         this.purchased_list = new ArrayList<>(purchased_list.entrySet());
     }
 
+    /**
+     * Method to create a view holder to inflate the the correct layout for the item on the
+     * shopping list.
+     * @param parent The ViewGroup into which the new View will be added after it is bound to
+     *               an adapter position.
+     * @param viewType The view type of the new View.
+     * @return The new view to be used for the purchased list.
+     */
     @NonNull
     @Override
     public PurchasedItemHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -37,27 +52,42 @@ public class PurchasedListAdapter extends RecyclerView.Adapter<PurchasedListAdap
         return new PurchasedItemHolder(purchased);
     }
 
+    /**
+     * The method to bind the item list to the view to correctly display the items.
+     * @param holder The ViewHolder which should be updated to represent the contents of the
+     *        item at the given position in the data set.
+     * @param position The position of the item within the adapter's data set.
+     */
     @Override
     public void onBindViewHolder(@NonNull PurchasedItemHolder holder, int position) {
         holder.bind(purchased_list.get(position).getKey(), purchased_list.get(position).getValue(), this, position);
     }
 
-
+    /**
+     * Method to get the size of the list of items.
+     * @return The size of the shopping list.
+     */
     @Override
     public int getItemCount() {
         return purchased_list.size();
     }
 
-
-
+    /**
+     * PurchasedItemHolder class to create the view/layout for the purchased list item.
+     */
     public class PurchasedItemHolder extends RecyclerView.ViewHolder {
         private TextView purchased_name;
         private TextView purchased_price;
         private Button editButton;
         private HousingDataBaseManager hbd;
         private int position;
-
         PurchasedListAdapter pli;
+
+        /**
+         * Constructor for an ItemHolder object containing the text views and buttons corresponding
+         * to the correct list item for the layout.
+         * @param itemView The itemView corresponding to view for the list item.
+         */
         public PurchasedItemHolder(@NonNull View itemView) {
             super(itemView);
             purchased_name = (TextView)  itemView.findViewById(R.id.purchased_name);
@@ -66,6 +96,13 @@ public class PurchasedListAdapter extends RecyclerView.Adapter<PurchasedListAdap
             hbd = new HousingDataBaseManager(itemView.getContext());
         }
 
+        /**
+         * Method to bind the list item to the ListItemAdapter in order to access the correct views.
+         * @param User The user currently logged in, using the app.
+         * @param price The price of the current item being accessed.
+         * @param pl The adapter for the corresponding list item.
+         * @param pos The index position of the current list item.
+         */
         public void bind(String User, Double price, PurchasedListAdapter pl, int pos) {
             purchased_name.setText(User);
             purchased_price.setText(String.valueOf(price));
@@ -75,6 +112,12 @@ public class PurchasedListAdapter extends RecyclerView.Adapter<PurchasedListAdap
             // onclick methods, similar to list item adapter
         }
 
+        /**
+         * Listener for the edit button which creates a popup.
+         * The popup is inflated and then allows the user to input a different price for or
+         * remove the corresponding list item.
+         * @param view The button which was clicked.
+         */
         public void onButtonShowPopupWindowClick(View view) {
             LayoutInflater inflater = (LayoutInflater) view.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View popupView = inflater.inflate(R.layout.popup_edit_item, null);
@@ -98,6 +141,14 @@ public class PurchasedListAdapter extends RecyclerView.Adapter<PurchasedListAdap
             String name = userData[1];
 
             saveButton.setOnClickListener(new View.OnClickListener() {
+
+                /**
+                 * On click method for the save button to edit the corresponding list item. When
+                 * clicked the price of the item is changed to what the user has inputted or an
+                 * error message is displayed if the price is not inputted correctly.
+                 * The popup method is then dismissed.
+                 * @param view The button which was pressed.
+                 */
                 @Override
                 public void onClick(View view) {
                     try {
@@ -128,6 +179,12 @@ public class PurchasedListAdapter extends RecyclerView.Adapter<PurchasedListAdap
             });
 
             removeButton.setOnClickListener(new View.OnClickListener() {
+
+                /**
+                 * On click method for the remove button. When clicked the corresponding item is
+                 * removed from the purchased list and moved to the shopping list.
+                 * @param view The button which was clicked.
+                 */
                 @Override
                 public void onClick(View view) {
                     hbd.removePurchased(hbd.getUser()[0],itemName, new HousingDataBaseManager.DeleteCallback() {
@@ -141,6 +198,10 @@ public class PurchasedListAdapter extends RecyclerView.Adapter<PurchasedListAdap
 
                         }
 
+                        /**
+                         * Method to remove the method from the shopping list.
+                         * The popup method is then dismissed.
+                         */
                         @Override
                         public void purchasedDeleted() {
                             hbd.addItem(hbd.getUser()[0], itemName);

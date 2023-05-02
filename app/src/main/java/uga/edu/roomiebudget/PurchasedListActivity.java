@@ -24,8 +24,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * The activity class for the purchased list.
+ */
 public class PurchasedListActivity extends AppCompatActivity {
-
 
     private HousingDataBaseManager hdb;
     private PurchaseByUserAdapter purchased_list_adapter;
@@ -34,6 +36,11 @@ public class PurchasedListActivity extends AppCompatActivity {
     private Button settleCosts;
     private TextView groupListTitle;
 
+    /**
+     * Creates the purchased list activity to display the groups purchased list to the user.
+     * @param savedInstanceState If the fragment is being re-created from a previous saved state,
+     *                           this is the state.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,6 +54,7 @@ public class PurchasedListActivity extends AppCompatActivity {
         groupListTitle = findViewById(R.id.listTitle2);
         groupListTitle.setText(hdb.getUser()[0] + "'s Purchased List");
         hdb.getRoomatesPurchased(hdb.getUser()[0], new HousingDataBaseManager.FireBaseDataCallback() {
+
             @Override
             public void onRoomatesPurchasedDataReceived(LinkedHashMap<String, LinkedHashMap<String, Double>> data) {
                 purchased_list_adapter = new PurchaseByUserAdapter(data);
@@ -75,11 +83,14 @@ public class PurchasedListActivity extends AppCompatActivity {
             public void onLogin(String[] data) {
 
             }
-
-
         });
     }
 
+    /**
+     * The method to inflate the nav bar.
+     * @param menu The menu to be used for the nav bar.
+     * @return boolean stating whether or not the nav bar was inflated.
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.nav_bar, menu);
@@ -88,6 +99,13 @@ public class PurchasedListActivity extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * Sets up the correct actions for the nav bar options.
+     * Starts the activity corresponding to the option selected.
+     * The options are navigating the the purchased list or logging out of the app.
+     * @param item The option which was selected.
+     * @return boolean stating if the action was correctly carried out.
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         Intent intent;
@@ -106,31 +124,18 @@ public class PurchasedListActivity extends AppCompatActivity {
         }
     }
 
-    public void onButtonShowPopupWindowClick(View view) {
-        LayoutInflater inflater = (LayoutInflater)
-                getSystemService(LAYOUT_INFLATER_SERVICE);
-        View popupView = inflater.inflate(R.layout.popup_edit_item, null);
-
-        int width = LinearLayout.LayoutParams.WRAP_CONTENT;
-        int height = LinearLayout.LayoutParams.WRAP_CONTENT;
-        boolean focusable = true; // lets taps outside the popup also dismiss it
-        final PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
-
-        popupWindow.showAtLocation(view, Gravity.CENTER, 0, 0);
-        popupView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                popupWindow.dismiss();
-                return true;
-            }
-        });
-    }
-
+    /**
+     * Button listener class used to settle the costs.
+     */
     private class ButtonClickListener implements View.OnClickListener {
+
+        /**
+         * On click method to start the settle costs activity.
+         * @param view
+         */
         @Override
         public void onClick(View view) {
             Intent intent = new Intent(view.getContext(), SettleCostsActivity.class);
-
             startActivity(intent);
         }
     }

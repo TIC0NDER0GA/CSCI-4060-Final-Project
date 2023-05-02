@@ -18,6 +18,9 @@ import android.widget.TextView;
 
 import java.util.LinkedHashMap;
 
+/**
+ * The activity class for the shopping list.
+ */
 public class ShoppingListActivity extends AppCompatActivity {
 
     private Button addItem;
@@ -28,6 +31,13 @@ public class ShoppingListActivity extends AppCompatActivity {
     private LinearLayoutManager layoutManager;
     private TextView groupListTitle;
     private Intent intent;
+
+    /**
+     * Creates the shopping list activity to display the groups shopping list to the user.
+     * Also handles adding items to the shopping list.
+     * @param savedInstanceState If the fragment is being re-created from a previous saved state,
+     *                           this is the state.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -106,6 +116,10 @@ public class ShoppingListActivity extends AppCompatActivity {
         });
 
         addItem.setOnClickListener(new View.OnClickListener() {
+            /**
+             * The on click method used to add an item to the shopping list.
+             * @param view The button which was clicked.
+             */
             @Override
             public void onClick(View view) {
                 String text = item_entry.getText().toString();
@@ -144,6 +158,11 @@ public class ShoppingListActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * The method to inflate the nav bar.
+     * @param menu The menu to be used for the nav bar.
+     * @return boolean stating whether or not the nav bar was inflated.
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.nav_bar, menu);
@@ -152,6 +171,13 @@ public class ShoppingListActivity extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * Sets up the correct actions for the nav bar options.
+     * Starts the activity corresponding to the option selected.
+     * The options are navigating the the purchased list or logging out of the app.
+     * @param item The option which was selected.
+     * @return boolean stating if the action was correctly carried out.
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         Intent intent;
@@ -169,33 +195,4 @@ public class ShoppingListActivity extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
-
-    /*
-    public void onButtonShowPopupWindowClick(View view) {
-        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-        View popupView = inflater.inflate(R.layout.popup_purchase, null);
-
-        TextView nameView = findViewById(R.id.fb_item);
-        String item = nameView.getText().toString();
-
-        TextView itemLabel = popupView.findViewById(R.id.popupItemName);
-        itemLabel.setText(item);
-
-        int width = LinearLayout.LayoutParams.WRAP_CONTENT;
-        int height = LinearLayout.LayoutParams.WRAP_CONTENT;
-        boolean focusable = true; // lets taps outside the popup also dismiss it
-        final PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
-
-        popupWindow.showAtLocation(view, Gravity.CENTER, 0, 0);
-        popupView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                popupWindow.dismiss();
-                return true;
-            }
-        });
-    }
-    */
-
-
 }

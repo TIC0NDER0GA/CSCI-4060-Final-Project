@@ -56,6 +56,10 @@ public class RegisterActivity extends AppCompatActivity {
      */
     private class ButtonClickListener implements View.OnClickListener {
 
+        /**
+         * On click method for registration buttons. Sends user back to home page after they have
+         * correctly registered.
+         */
         private Intent intent;
         @Override
         public void onClick(View view) {
@@ -81,8 +85,6 @@ public class RegisterActivity extends AppCompatActivity {
             } else {
                 Toast.makeText(context, "Passwords do not match.", Toast.LENGTH_SHORT).show();
             }
-
         }
-
     }
 }

@@ -33,6 +33,10 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * Class to manage the database and deal with accessing data corresponding to the groups, users
+ * and list items/purchases.
+ */
 public class HousingDataBaseManager {
     private FirebaseDatabase fdb = FirebaseDatabase.getInstance("https://roomiebudget-default-rtdb.firebaseio.com");
     private DatabaseReference fRef;
@@ -57,10 +61,12 @@ public class HousingDataBaseManager {
     private MasterKey masterKey;
     private SharedPreferences privSharedPreferences;
     private SharedPreferences pubSharedPreferences;
-
-
     private LinkedHashMap<String, LinkedHashMap<String, Double>> lists_by_user;
 
+    /**
+     * Constructor for a HousingDataBaseManager object
+     * @param parent The context of the parent activity.
+     */
     public  HousingDataBaseManager(Context parent) {
         context = parent;
         fAuth = FirebaseAuth.getInstance();
@@ -68,8 +74,12 @@ public class HousingDataBaseManager {
         editor = preferences.edit();
     }
 
-
-
+    /**
+     * Method to add a user to the database.
+     * @param email The user's email.
+     * @param user The user's group.
+     * @param fullName The user's name.
+     */
     public void addUser(String email, String user, String fullName) {
         uRef = fdb.getReference(DATABASE_USERS);
         uRef = fdb.getReference(DATABASE_USERS + "/" + parseEmail(email));
@@ -78,16 +88,29 @@ public class HousingDataBaseManager {
         uRef.child("email").setValue(email);
     }
 
-
+    /**
+     * Method to parse the users email to retrieve their username.
+     * @param email The user's email.
+     * @return The username retrieved from the parsed email.
+     */
     public String parseEmail(String email) {
         email = email.substring(0, email.indexOf('@'));
         return email;
     }
 
-
-
+    /**
+     * Method to sign a user in to the app.
+     * @param email The user's email.
+     * @param password The user's password.
+     */
     public void signinUser(String email, String password) {
             fAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+
+                /**
+                 * Method to encrypt the login info, catch any exceptions, and then start the
+                 * the shopping list activity.
+                 * @param task
+                 */
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if (task.isSuccessful()) {
@@ -105,21 +128,24 @@ public class HousingDataBaseManager {
                     } else {
                         Toast.makeText(context, "Invalid Login", Toast.LENGTH_SHORT).show();
                     }
-
                 }
             });
     }
 
-
-
-
-
-
-
+    /**
+     * Method to create a new group in the database.
+     * @param group The group name to be used.
+     * @throws Exception GroupException thrown if the group already exists.
+     */
     public void createGroup(String group) throws Exception{
         fRef = fdb.getReference(DATABASE_ENTRY);
         fRef.child(group).setValue("").addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
+
+            /**
+             * Method to check if adding the group is successful or if the group already exists.
+             * @param task
+             */
+            @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()) {
                                 fRef = fdb.getReference(DATABASE_ENTRY + "/" + group);
@@ -139,12 +165,23 @@ public class HousingDataBaseManager {
                     });
     }
 
+    /**
+     * Method to add an item to the shopping list database.
+     * @param group Group the item is added to.
+     * @param item The name of the item to be added.
+     */
     public void addItem(String group, String item) {
         fRef = fdb.getReference(DATABASE_ENTRY + "/" + group + "/" + "Item_list");
         fRef.child(item).setValue("");
-
     }
 
+    /**
+     * Method to add an item to the purchased list in the database
+     * @param group The group the item is within.
+     * @param member The user purchasing the item.
+     * @param item The item to be added to the purchased list.
+     * @param price The price of the item to be saved with the name of the item.
+     */
     public void purchasedItem(String group, String member, String item, Double price) {
         fRef = fdb.getReference(DATABASE_ENTRY + "/" + group + "/" + member);
         fRef.child(item).setValue(price);
@@ -152,11 +189,19 @@ public class HousingDataBaseManager {
         fRef.child(item).setValue(price);
     }
 
-
+    /**
+     * Method to retrieve the shopping list of items.
+     * @param group The group to get the list from.
+     * @param callback The callback to the database.
+     */
     public void getItems(String group, FireBaseDataCallback callback) {
         fRef = fdb.getReference(DATABASE_ENTRY + "/" + group + "/" + "Item_list");
-
         fRef.addListenerForSingleValueEvent(new ValueEventListener() {
+
+            /**
+             * Method to call each time the data is changed.
+             * @param snapshot The current data at the location.
+             */
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 item_list = new LinkedHashMap<>();
@@ -173,14 +218,22 @@ public class HousingDataBaseManager {
 
             }
         });
-
     }
 
-
+    /**
+     * Method to get the list of purchased items.
+     * @param group The group to get the list from.
+     * @param callback The callback to the database.
+     */
     public void getPurchased(String group, FireBaseDataCallback callback) {
         fRef = fdb.getReference(DATABASE_ENTRY + "/" + group + "/" + "Recently_purchased");
 
         fRef.addListenerForSingleValueEvent(new ValueEventListener() {
+
+            /**
+             * Method called each time the data is changed.
+             * @param snapshot The current data at the location.
+             */
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 purchased_list = new LinkedHashMap<>();
@@ -201,10 +254,23 @@ public class HousingDataBaseManager {
 
     }
 
+    /**
+     * Method to add a new user to the database which is being added to an existing group.
+     * @param email The user's email.
+     * @param group The user's group to join.
+     * @param name The user's name.
+     * @param password The user's password.
+     */
     public void createUserWithGroup(String email, String group, String name, String password) {
         //  Log.e(TAG, "GROUP: " + group);
             fAuth.createUserWithEmailAndPassword(email, password)
                     .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+
+                        /**
+                         * Method to check if the group exists.
+                         * After the user signs up correctly, the user is sent back to the home page.
+                         * @param task Async task for registering
+                         */
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if (task.isSuccessful()) {
@@ -226,11 +292,22 @@ public class HousingDataBaseManager {
                     });
     }
 
-
-
+    /**
+     * Method to add a new user to the database who is creating/joining a new group.
+     * @param email User's email.
+     * @param group The new group the user is creating.
+     * @param name User's name.
+     * @param password User's password.
+     */
     public void createUserWithoutGroup(String email, String group, String name, String password) {
         fAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+
+                    /**
+                     * Method to add the user and check to make sure it was done correctly.
+                     * After the user signs up correctly, the user is sent back to the home page.
+                     * @param task Async task for registering
+                     */
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
@@ -252,13 +329,21 @@ public class HousingDataBaseManager {
                 });
     }
 
-
+    /**
+     * Method to retrieve the items from the purchased list for a specific group.
+     * @param group The group to get the purchased list from.
+     * @param callback The callback to the database.
+     */
     public void getRoomatesPurchased(String group, FireBaseDataCallback callback) {
         LinkedHashMap<String, LinkedHashMap<String, Double>> data = new LinkedHashMap<>();
-
         fRef = fdb.getReference(DATABASE_ENTRY + "/" + group);
         fRef.addListenerForSingleValueEvent(new ValueEventListener() {
             LinkedHashMap<String, Double> innerdata;
+
+            /**
+             * Method to be used whenever data is changed in the database.
+             * @param snapshot The current data at the location
+             */
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for (DataSnapshot userSnapshot : snapshot.getChildren()) {
@@ -280,10 +365,8 @@ public class HousingDataBaseManager {
                             innerData.put(itemName, doubleValue);
                         }
                     }
-
                     data.put(userId, innerData);
                 }
-
                 callback.onRoomatesPurchasedDataReceived(data);
             }
 
@@ -295,15 +378,20 @@ public class HousingDataBaseManager {
 
     }
 
-
-
-
+    /**
+     * Method to retrieve the costs for the items on the purchased list for a specific group.
+     * @param group The group to get the costs from.
+     * @param callback The callback to the database.
+     */
     public void getRoomatesPurchasedCosts(String group, FireBaseDataCallback callback) {
         LinkedHashMap<String, Double> data = new LinkedHashMap<>();
-
-
         fRef = fdb.getReference(DATABASE_ENTRY + "/" + group);
         fRef.addListenerForSingleValueEvent(new ValueEventListener() {
+
+            /**
+             * Method to be used whenever data is changed in the database.
+             * @param snapshot The current data at the location
+             */
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 double totalSpent = 0;
@@ -313,12 +401,9 @@ public class HousingDataBaseManager {
                     if (userId.equals("Item_list") || userId.equals("Recently_purchased")) {
                         continue;
                     }
-
-
                     double userTotal = 0;
                     for (DataSnapshot itemSnapshot : userSnapshot.getChildren()) {
                         Object value = itemSnapshot.getValue();
-
                         if (value instanceof Double) {
                             userTotal += (Double) value;
                             totalSpent += (Double) value;
@@ -329,11 +414,9 @@ public class HousingDataBaseManager {
                             totalSpent += doubleValue;
                         }
                     }
-
                     data.put(userId, userTotal);
                     totalUsers++;
                 }
-
                 double average = totalSpent / totalUsers;
                 data.put("Average cost per roomate", average);
                 data.put("Total spent by group", totalSpent);
@@ -347,7 +430,13 @@ public class HousingDataBaseManager {
         });
     }
 
-
+    /**
+     * Method to encrypt a user's login information.
+     * @param email User's email.
+     * @param password User's password.
+     * @throws GeneralSecurityException
+     * @throws IOException
+     */
     private void encryptLogin(String email, String password) throws GeneralSecurityException, IOException {
         masterKey = new MasterKey.Builder(context).setKeyScheme(MasterKey.KeyScheme.AES256_GCM).build();
         privSharedPreferences = EncryptedSharedPreferences.create(context, "user_cred", masterKey,
@@ -357,6 +446,12 @@ public class HousingDataBaseManager {
         privSharedPreferences.edit().putString("password",password).apply();
     }
 
+    /**
+     * Method to save the user's information.
+     * @param group The group the user is in.
+     * @param name User's name.
+     * @param email User's email.
+     */
     public void savePref(String group, String name, String email) {
         pubSharedPreferences = context.getSharedPreferences("user_pref",Context.MODE_PRIVATE);
         editor = pubSharedPreferences.edit();
@@ -365,8 +460,12 @@ public class HousingDataBaseManager {
         editor.putString("email", email).apply();
     }
 
-
-
+    /**
+     * Method to get the user's login information.
+     * @return Array containing the user's email & password.
+     * @throws GeneralSecurityException
+     * @throws IOException
+     */
     public String[] getCred() throws GeneralSecurityException, IOException {
         String[] userdata = new String[2];
         masterKey = new MasterKey.Builder(context).setKeyScheme(MasterKey.KeyScheme.AES256_GCM).build();
@@ -382,6 +481,10 @@ public class HousingDataBaseManager {
         return userdata;
     }
 
+    /**
+     * Method to retrieve a user from the database.
+     * @return Array containing the group the user is in, user's name, and user's email.
+     */
     public String[] getUser() {
         String[] userdata = new String[3];
         pubSharedPreferences = context.getSharedPreferences("user_pref",Context.MODE_PRIVATE);
@@ -391,10 +494,20 @@ public class HousingDataBaseManager {
         return userdata;
     }
 
+    /**
+     * Method to store a user's information in the database.
+     * @param user The user's name.
+     * @param callback The callback to the database.
+     */
     public void storeUser(String user, FireBaseDataCallback callback) {
         uRef = fdb.getReference(DATABASE_USERS + "/" + user);
         String[] userStuff = new String[3];
         uRef.addListenerForSingleValueEvent(new ValueEventListener() {
+
+            /**
+             * Method to be used whenever data is changed in the database.
+             * @param snapshot The current data at the location
+             */
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 int i = 0;
@@ -414,8 +527,10 @@ public class HousingDataBaseManager {
         });
     }
 
-
-
+    /**
+     * Method to clear the apps data when a user logs out.
+     * @param context The current context of the app.
+     */
     public static void clearAppData(Context context) {
         try {
             // Get the package manager and activity manager
@@ -427,10 +542,22 @@ public class HousingDataBaseManager {
         }
     }
 
+    /**
+     * Method to delete an item from the shopping list.
+     * @param item Item to be deleted.
+     * @param group Group to get the list from.
+     * @param callback The callback to the database.
+     */
     public void removeItem(String item, String group, DeleteCallback callback) {
         fRef = fdb.getReference(DATABASE_ENTRY + "/" + group + "/" + "Item_list").child(item);
         Log.e(TAG, group);
         fRef.removeValue(new DatabaseReference.CompletionListener() {
+
+            /**
+             * Method to check if the item is deleted from the database.
+             * @param error A description of any errors that occurred or null on success
+             * @param ref A reference to the specified Firebase Database location
+             */
             @Override
             public void onComplete(@Nullable DatabaseError error, @NonNull DatabaseReference ref) {
                 if (error == null) {
@@ -445,6 +572,12 @@ public class HousingDataBaseManager {
         });
     }
 
+    /**
+     * Method to delete an item from the purchased list.
+     * @param group The group to get the list from.
+     * @param item The item to be deleted.
+     * @param callback The callback to the database.
+     */
     public void removePurchased( String group, String item, DeleteCallback callback) {
         fRef = fdb.getReference(DATABASE_ENTRY + "/" + group + "/" + "Recently_purchased").child(item);
         fRef.removeValue(new DatabaseReference.CompletionListener() {
@@ -458,46 +591,32 @@ public class HousingDataBaseManager {
                 }
             }
         });
-
-
-        /*
-        uRef = fdb.getReference(DATABASE_ENTRY + "/" + group + "/" + user).child(item);
-        uRef.removeValue(new DatabaseReference.CompletionListener() {
-            @Override
-            public void onComplete(@Nullable DatabaseError error, @NonNull DatabaseReference ref) {
-                if (error == null) {
-                    // Notify the callback that the data has changed
-                    if (callback != null) {
-                        callback.purchasedDeleted();
-                    }
-                }
-            }
-        });
-         */
     }
 
+    /**
+     * Method to remove an item from a user's list of purchased items.
+     * @param user The user that purchased the item.
+     * @param group The group the user is in.
+     * @param item The item to be removed.
+     */
     public void removePurchasedUser(String user, String group, String item) {
         uRef = fdb.getReference(DATABASE_ENTRY + "/" + group + "/" + user).child(item);
         uRef.removeValue();
-
-        /* uRef.removeValue(new DatabaseReference.CompletionListener() {
-            @Override
-            public void onComplete(@Nullable DatabaseError error, @NonNull DatabaseReference ref) {
-                if (error == null) {
-                    // Notify the callback that the data has changed
-                    if (callback != null) {
-                        callback.purchasedDeleted();
-                    }
-                }
-            }
-        }); */
     }
 
-
+    /**
+     * Method to clear the purchased items list and the purchased item lists for each user.
+     * @param group The group to delete the purchased items from.
+     */
     public void clearAllPurchasedData(String group) {
         fRef = fdb.getReference(DATABASE_ENTRY).child(group);
 
         fRef.addListenerForSingleValueEvent(new ValueEventListener() {
+
+            /**
+             * Method used whenever data in the database is changed.
+             * @param snapshot The current data at the location
+             */
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 // iterate over the child nodes of the group node
@@ -507,10 +626,15 @@ public class HousingDataBaseManager {
                     if (childKey.equals("Item_list")) {
                         continue;
                     }
-
                     // delete the children of the node
                     DatabaseReference nodeRef = childSnapshot.getRef();
                     nodeRef.removeValue(new DatabaseReference.CompletionListener() {
+
+                        /**
+                         * Method to handle error if the data is not changed correctly.
+                         * @param error A description of any errors that occurred or null on success
+                         * @param ref A reference to the specified Firebase Database location
+                         */
                         @Override
                         public void onComplete(@Nullable DatabaseError error, @NonNull DatabaseReference ref) {
                             if (error != null) {
@@ -527,8 +651,6 @@ public class HousingDataBaseManager {
             }
         });
     }
-
-
 
     public class GroupException extends Exception {
         public GroupException(String msg) {

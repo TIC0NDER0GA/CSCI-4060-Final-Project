@@ -13,13 +13,22 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Activity class for the settle costs activity which displays information about how much each user
+ * has spent and the average cost per user.
+ */
 public class SettleCostsActivity extends AppCompatActivity {
-
 
     private HousingDataBaseManager hdb;
     private LinearLayoutManager llm;
     private CostsAdapter costsAdapter;
     private RecyclerView recyclerView;
+
+    /**
+     * The method to create the SettleCostsActivity and the correct layout.
+     * @param savedInstanceState If the fragment is being re-created from a previous saved state,
+     *                           this is the state.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,6 +44,11 @@ public class SettleCostsActivity extends AppCompatActivity {
 
             }
 
+            /**
+             * Method to set the cost adapter which helps display the correct information.
+             * Then clears the purchased list.
+             * @param data The data to be used to calculate the cost information.
+             */
             @Override
             public void onCalculationsReceived(LinkedHashMap<String, Double> data) {
                 costsAdapter = new CostsAdapter(data);
@@ -60,6 +74,11 @@ public class SettleCostsActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * The method to inflate the nav bar.
+     * @param menu The menu to be used for the nav bar.
+     * @return boolean stating whether or not the nav bar was inflated.
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.nav_bar, menu);
@@ -68,6 +87,13 @@ public class SettleCostsActivity extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * Sets up the correct actions for the nav bar options.
+     * Starts the activity corresponding to the option selected.
+     * The options are navigating the the purchased list or logging out of the app.
+     * @param item The option which was selected.
+     * @return boolean stating if the action was correctly carried out.
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         Intent intent;

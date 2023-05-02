@@ -8,7 +8,7 @@ import android.view.View;
 import android.widget.Button;
 
 /**
- * The main activity class to begin the Roomie Budget Application
+ * The main activity class to begin the Roomie Budget Application.
  */
 public class MainActivity extends AppCompatActivity {
 
