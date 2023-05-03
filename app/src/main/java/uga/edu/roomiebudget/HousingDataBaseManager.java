@@ -31,6 +31,7 @@ import java.security.GeneralSecurityException;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -38,30 +39,29 @@ import java.util.Map;
  * and list items/purchases.
  */
 public class HousingDataBaseManager {
-    private FirebaseDatabase fdb = FirebaseDatabase.getInstance("https://roomiebudget-default-rtdb.firebaseio.com");
-    private DatabaseReference fRef;
-    private DatabaseReference uRef;
+    private FirebaseDatabase fdb = FirebaseDatabase.getInstance("https://roomiebudget-default-rtdb.firebaseio.com"); // the entry point of the App's Firebase Database
+    private DatabaseReference fRef; // Database reference for use to deal with group info
+    private DatabaseReference uRef; // Database reference for use to deal with grab user info
 
-    private final static String DATABASE_ENTRY = "/dorms";
-    private final static String DATABASE_USERS = "/users";
+    private final static String DATABASE_ENTRY = "/dorms"; // path to groups part of database
+    private final static String DATABASE_USERS = "/users"; // path to users part of database
 
-    private Context context;
+    private Context context; // the parent activity context for objects and methods that depend on it
 
-    private FirebaseAuth fAuth;
+    private FirebaseAuth fAuth; // the firebase authentication object
 
-    private Intent intent;
+    private Intent intent; // used to change activities from the utility class as needed
 
-    private final String USER_PREF = "preferences";
-    private String[] auto;
+    private final String USER_PREF = "preferences"; // name for the preferences file
 
-    private SharedPreferences preferences;
-    private SharedPreferences.Editor editor;
-    private LinkedHashMap<String,String> item_list;
-    private LinkedHashMap<String,Double> purchased_list;
-    private MasterKey masterKey;
-    private SharedPreferences privSharedPreferences;
-    private SharedPreferences pubSharedPreferences;
-    private LinkedHashMap<String, LinkedHashMap<String, Double>> lists_by_user;
+    private SharedPreferences preferences; // a global app wide var that can retrieve the users information when needed
+    private SharedPreferences.Editor editor; // Edits the file that stores user preferences
+    private LinkedHashMap<String,String> item_list; // stores a groups shopping list
+    private LinkedHashMap<String,Double> purchased_list; // stores a groups purchased data
+    private MasterKey masterKey; // the master key for getting sensitive data
+    private SharedPreferences privSharedPreferences; // the user's login that are available only when provided with a master key
+    private SharedPreferences pubSharedPreferences; // the user's preferences that are available only for the app to see
+
 
     /**
      * Constructor for a HousingDataBaseManager object
@@ -82,7 +82,7 @@ public class HousingDataBaseManager {
      */
     public void addUser(String email, String user, String fullName) {
         uRef = fdb.getReference(DATABASE_USERS);
-        uRef = fdb.getReference(DATABASE_USERS + "/" + parseEmail(email));
+        uRef = fdb.getReference(DATABASE_USERS + "/" + parseEmail(email.toLowerCase(Locale.ENGLISH)));
         uRef.child("group").setValue(user);
         uRef.child("full_name").setValue(parseEmail(email));
         uRef.child("email").setValue(email);
@@ -222,6 +222,8 @@ public class HousingDataBaseManager {
 
     /**
      * Method to get the list of purchased items.
+     * This was a test method before assigning each
+     * user their own list.
      * @param group The group to get the list from.
      * @param callback The callback to the database.
      */
@@ -263,7 +265,7 @@ public class HousingDataBaseManager {
      */
     public void createUserWithGroup(String email, String group, String name, String password) {
         //  Log.e(TAG, "GROUP: " + group);
-            fAuth.createUserWithEmailAndPassword(email, password)
+            fAuth.createUserWithEmailAndPassword(email.toLowerCase(Locale.ENGLISH), password)
                     .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
 
                         /**
@@ -300,7 +302,7 @@ public class HousingDataBaseManager {
      * @param password User's password.
      */
     public void createUserWithoutGroup(String email, String group, String name, String password) {
-        fAuth.createUserWithEmailAndPassword(email, password)
+        fAuth.createUserWithEmailAndPassword(email.toLowerCase(Locale.ENGLISH), password)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
 
                     /**
@@ -652,26 +654,81 @@ public class HousingDataBaseManager {
         });
     }
 
+    /**
+     * A child of the Exception Class made to specifically
+     * warn the user of errors when trying to make a group.
+     */
     public class GroupException extends Exception {
+        /**
+         * Creates a custom exception message for making groups
+         * @param msg the error message
+         */
         public GroupException(String msg) {
             super(msg);
         }
     }
 
+
+    /**
+     * An interface whose purpose is to manage the untimely effects of asynchronous calls.
+     * It makes sure the data is availble before the code tries to run a varible that is null.
+     */
     public interface FireBaseDataCallback {
+        /**
+         * When implemented as a part of a getRoomatesPurchased() method call
+         * provides data to the implementing method when it is ready.
+         * @param data the seperate lists of purchases by each roomate
+         */
         void onRoomatesPurchasedDataReceived(LinkedHashMap<String, LinkedHashMap<String, Double>> data);
+
+        /**
+         * When implemented as a part of a getRoomatesPurchasedCosts() method call
+         * provides data to the implementing method when it is ready.
+         * @param data the average cost, the total each roomate spent, and the overall total spent by the group.
+         */
         void onCalculationsReceived(LinkedHashMap<String,Double> data);
+
+        /**
+         * When implemented as a part of a getItems() method call
+         * provides data to the implementing method when it is ready.
+         * @param data all the items added to the shopping list.
+         */
         void onItemsDataReceived(LinkedHashMap<String, String> data);
 
+        /**
+         * When implemented as a part of a getPurchased() method call
+         * provides data to the implementing method when it is ready.
+         * @param data all the items purchased by the group
+         */
         void onPurchasedDataRecieved(LinkedHashMap<String, Double> data);
 
         void onLogin(String[] data);
     }
 
+    /**
+     * An interface that handled the asynchronous calls for
+     * deletion only, so the program knows when the data is gone
+     * to update the appropriate UI elements.
+     */
     public interface DeleteCallback {
+
+        /**
+         * When implemented as a part of a removeItem() method call
+         * lets the implementing method know for the UI to be updated.
+         */
         void itemDeleted();
+
+        /**
+         * A test method that was in charge of
+         * letting the calling method know when the
+         * Purchased list was empty.
+         */
         void purchasedCleared();
 
+        /**
+         * When implemented as a part of a removePurchased() method call
+         * lets the implementing method know for the UI to be updated.
+         */
         void purchasedDeleted();
 
     }

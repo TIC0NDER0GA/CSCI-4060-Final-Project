@@ -55,6 +55,11 @@ public class PurchasedListActivity extends AppCompatActivity {
         groupListTitle.setText(hdb.getUser()[0] + "'s Purchased List");
         hdb.getRoomatesPurchased(hdb.getUser()[0], new HousingDataBaseManager.FireBaseDataCallback() {
 
+            /**
+             * Implements the interface for a callback
+             * letting the adapter know the data is ready.
+             * @param data the seperate lists of purchases by each roomate
+             */
             @Override
             public void onRoomatesPurchasedDataReceived(LinkedHashMap<String, LinkedHashMap<String, Double>> data) {
                 purchased_list_adapter = new PurchaseByUserAdapter(data);

@@ -44,8 +44,9 @@ public class ShoppingListActivity extends AppCompatActivity {
         intent = getIntent();
         hdb = new HousingDataBaseManager(this);
 
+
         if (intent.getStringExtra("user") != null && hdb.getUser()[0] == null) {
-            Log.d(TAG, "USER GOT AND PREF GOT");
+            // Log.d(TAG, "USER GOT AND PREF GOT");
             hdb.storeUser(intent.getStringExtra("user"), new HousingDataBaseManager.FireBaseDataCallback() {
                 @Override
                 public void onRoomatesPurchasedDataReceived(LinkedHashMap<String, LinkedHashMap<String, Double>> data) {
@@ -70,6 +71,8 @@ public class ShoppingListActivity extends AppCompatActivity {
                 @Override
                 public void onLogin(String[] data) {
                     hdb.savePref(data[2],data[1],data[0]);
+                    Log.d(TAG, "TITLE SET");
+                    groupListTitle.setText(data[2] + "'s Shopping List");
                 }
             });
 
@@ -83,6 +86,7 @@ public class ShoppingListActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(layoutManager);
         item_entry = (EditText) findViewById(R.id.editTextTextPersonName2);
         groupListTitle = findViewById(R.id.listTitle);
+        Log.d(TAG, "SECOND TITLE SET");
         groupListTitle.setText(hdb.getUser()[0] + "'s Shopping List");
 
         hdb.getItems(hdb.getUser()[0], new HousingDataBaseManager.FireBaseDataCallback() {
